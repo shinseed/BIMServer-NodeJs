@@ -1,8 +1,9 @@
 /**
  * Created by lixin on 2017/4/6.
  */
-import threeControls from './threeControls';
+import threeControls from './ThreeControls';
 import * as THREE from 'three';
+import $ from 'jquery'
 var TWEEN = require('tween.js');
 var _ = require('lodash');
 require('../libs//AssimpJSONLoader');
@@ -75,7 +76,7 @@ class threeInterface extends threeControls {
             _.map(arrData.data, (i, num) => {
 
                 this.objectLoader.load(i.url, (obj) => {
-
+                    
                     setTimeout(() => {
                         obj.name = i.url;
                         obj.position.set(arrData.data[num].position.x, arrData.data[num].position.y, arrData.data[num].position.z); //位置
@@ -94,32 +95,6 @@ class threeInterface extends threeControls {
 
                 });
             });
-
-
-            //命令式
-            // for (let i of arr) {
-            //     this.objectLoader.load(i, (obj) => {
-            //         setTimeout(() => {
-
-            //             obj.name = i;
-            //             num++;
-            //             this.scene.add(obj);
-            //             callback({
-            //                 schedule: parseInt(num / arr.length * 100)
-            //             });
-
-            //             if (num === arr.length) {
-            //                 this.processSceneGeometry();
-            //                 callback({
-            //                     schedule: parseInt(num / arr.length * 100)
-            //                 });
-            //                 console.log(this.SuperMarioControl)
-            //             }
-            //         }, 1000 * num);
-
-            //     });
-
-            // }
         };
 
         /**

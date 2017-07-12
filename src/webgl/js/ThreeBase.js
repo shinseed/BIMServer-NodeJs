@@ -2,6 +2,7 @@
  * Created by lixin on 2017/4/6.
  */
 import * as THREE from 'three';
+import $ from 'jquery'
 window.THREE = THREE;
 
 /**
@@ -53,9 +54,10 @@ class threeBase {
             antialias: true,
             preserveDrawingBuffer: true,
         });
+
         this.renderer.setClearColor(this.backgroundColor, 1.0); //给canvas设置白色背景
         this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.setSize(this.container.innerWidth(), this.container.innerHeight()); //设置渲染器尺寸
+        this.renderer.setSize(this.state.webglstyle.width, this.state.webglstyle.height); //设置渲染器尺寸
         this.renderer.shadowMap.enable = true; //开启渲染器阴影
         this.container.append(this.renderer.domElement);
     }

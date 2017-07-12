@@ -19,6 +19,7 @@
     },
     "homepage": "https://github.com/shinseed/Three.js-WebGl-View#readme",
     "dependencies": {
+        "jquery": "^3.2.1",
         "three": "^0.84.0",
         "tween.js": "^16.6.0"
     },
