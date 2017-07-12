@@ -26,8 +26,8 @@ function createLoadModelInfo() {
     let arr = [];
     for (let i = 1; i < 22; i++) {
         arr.push({
-            url: `static/yygc/友谊广场站建筑结构模型/${i}.json`,
-            type: '结构',
+            url: `static/整体的模型源文件.json/${i}.json`,
+            type: '整体模型源文件',
             //加载模型初始的偏移位置
             position: {
                 x: 0,
@@ -75,6 +75,6 @@ window.onload = function() {
         //开启超级玛丽模式
         window.webgl.SuperMarioStart();
         $('#superMario').blur() //失去焦点
-        alert('w、a、s、d 空格 ps:只做了向下的碰撞检测')
+        // alert('w、a、s、d 空格 ps:只做了向下的碰撞检测')
     })
 }

@@ -14,7 +14,7 @@ const {mkdir,clone}=require('./com');
  * */
 const modelPath = __dirname + '/model/';
 const outputPath = __dirname + '/output/';
-const grading=100;
+const grading=20;
 
 
 /**
