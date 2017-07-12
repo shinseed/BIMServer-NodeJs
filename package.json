@@ -1,0 +1,19 @@
+{
+  "name": "three.js-webgl-view",
+  "version": "1.0.0",
+  "description": "基于Three.js-WebGl-View",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shinseed/Three.js-WebGl-View.git"
+  },
+  "author": "307610991@qq.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shinseed/Three.js-WebGl-View/issues"
+  },
+  "homepage": "https://github.com/shinseed/Three.js-WebGl-View#readme"
+}
