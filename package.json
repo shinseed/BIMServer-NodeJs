@@ -1,7 +1,7 @@
 {
     "name": "three.js-webgl-view",
     "version": "1.0.0",
-    "description": "基于Three.js-WebGl-View",
+    "description": "Three.js的 webgl 基础 demo",
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",

@@ -1,5 +1,5 @@
 # Three.js-WebGl-View
-基于Three.js-WebGl-View
+基于Three.js的 webgl 基础 demo
 
 # 使用
 1.npm install || yarn install
