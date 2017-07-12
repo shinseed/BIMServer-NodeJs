@@ -37,8 +37,8 @@
 1.完成 webgl server 
 2.完善 webgl 展现层 各种交互操作
 
-暂时就想到这些，下面自己写的一个小的demo 慢慢完善。。。
-https://github.com/shinseed/Three.js-WebGl-View
+暂时就想到这些，慢慢完善。。。
+
 # 使用
 1.npm install || yarn install
 
