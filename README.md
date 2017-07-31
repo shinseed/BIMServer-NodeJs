@@ -37,7 +37,7 @@
  ![image](static/img/gl.png)
 http://naotu.baidu.com/file/5f44828aa0bcdd7758e2f3c47302d49c?token=9fb8f3ebd9842204
 
-# 使用(view的demo占个坑先)
+# 使用(只是demo占个坑先)
 1.npm install || yarn install
 
 2.npm run dev 
