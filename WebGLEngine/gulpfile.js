@@ -1,33 +1,26 @@
-var gulp = require("gulp");
-var browserify = require("browserify");
-var source = require('vinyl-source-stream');
-var watchify = require("watchify");
-var tsify = require("tsify");
-var gutil = require("gulp-util");
+var gulp = require('gulp');
+var ts = require('gulp-typescript');
+
 var paths = {
-    pages: ['examples/*.html']
+    pages: ['./examples/*.html']
 };
+gulp.task('default', function() {
 
-var watchedBrowserify = watchify(browserify({
-    basedir: '.',
-    debug: true,
-    entries: ['src/cyclegl.ts'],
-    cache: {},
-    packageCache: {}
-}).plugin(tsify));
+})
 
-gulp.task("copy-html", function () {
+gulp.task('watch', function() {
+    gulp.watch('./src/**/*.ts', ['ts', 'copy-html']);
+})
+
+
+gulp.task('ts', function() {
+    gulp.src('./src/**/*.ts') //*表示所有的scss文件
+        .pipe(ts())
+        .pipe(gulp.dest('dist'))
+})
+
+gulp.task("copy-html", function() {
     return gulp.src(paths.pages)
         .pipe(gulp.dest("dist"));
 });
 
-function bundle() {
-    return watchedBrowserify
-        .bundle()
-        .pipe(source('cyclegl.js'))
-        .pipe(gulp.dest("dist"));
-}
-
-gulp.task("default", ["copy-html"], bundle);
-watchedBrowserify.on("update", bundle);
-watchedBrowserify.on("log", gutil.log);
