@@ -4,7 +4,7 @@ function resolve(dir) {
     return path.join(__dirname, '..', dir)
 }
 module.exports = {
-    entry: './src/main.js',
+    entry: './DemoSrc/main.js',
     output: {
         filename: 'bundle.js',
         path: path.resolve(__dirname, '../dist')
@@ -12,7 +12,7 @@ module.exports = {
     resolve: {
         extensions: ['.js', '.vue', '.json'],
         alias: {
-            '~': resolve('src')
+            '~': resolve('DemoSrc')
         }
     },
     module: {
