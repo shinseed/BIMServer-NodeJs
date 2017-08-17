@@ -1,0 +1,9 @@
+{
+    "files": [
+        "src/cyclegl.ts"
+    ],
+    "compilerOptions": {
+        "noImplicitAny": true,
+        "target": "es5"
+    }
+}
