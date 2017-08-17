@@ -1,49 +1,12 @@
-
-
-
-# compiled output
-/dist
-/tmp
-/out-tsc
-
-# dependencies
-/node_modules
-
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-# misc
-/.sass-cache
-/connect.lock
-/coverage
-/libpeerconnection.log
-npm-debug.log
-testem.log
-/typings
-yarn-error.log
-yarn-debug.log
+.DS_Store
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 yarn-lock
-
-# e2e
-/e2e/*.js
-/e2e/*.map
 test/unit/coverage
 test/e2e/reports
 selenium-debug.log
 
-# System Files
-.DS_Store
-Thumbs.db
+
