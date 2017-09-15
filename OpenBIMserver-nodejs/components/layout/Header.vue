@@ -1,8 +1,8 @@
 <template>
-  <div>header</div>
+  <header>OpenBIMserver header</header>
 </template>
 <script>
 export default {
-  
+
 }
 </script>

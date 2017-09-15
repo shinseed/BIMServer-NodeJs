@@ -37,7 +37,7 @@ var trees = [{
         "depth": 1,
         "child_num": 3,
         "description": "Base Manager",
-        "expanded": true,
+        "expanded": false,
         "children": [{
             "id": 3,
             "label": "Menus",
@@ -161,6 +161,16 @@ var trees = [{
 }]
 
 export default {
+  asyncData ({ req }) {
+    return {
+      name: req ? 'server' : 'client'
+    }
+  },
+  head () {
+    return {
+      title: `Home Page (${this.name}-side)`
+    }
+  },
     methods: {
         handleClick() {
                 console.log(1);
