@@ -1,0 +1,35 @@
+{
+  "name": "lx",
+  "version": "1.0.0",
+  "description": "Nuxt.js project",
+  "author": "shinseed <307610991@qq.com>",
+  "private": true,
+  "scripts": {
+    "dev": "backpack dev",
+    "build": "nuxt build && backpack build",
+    "start": "cross-env NODE_ENV=production node build/main.js",
+    "precommit": "npm run lint",
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore ."
+  },
+  "dependencies": {
+    "cross-env": "^5.0.1",
+    "element-ui": "^1.4.4",
+    "koa": "^2.3.0",
+    "nuxt": "^1.0.0-rc11",
+    "source-map-support": "^0.4.15",
+    "transform-runtime": "^0.0.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "^7.1.1",
+    "backpack-core": "^0.3.0",
+    "eslint": "^3.13.1",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-html": "^2.0.3",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-node": "^4.2.2",
+    "eslint-plugin-promise": "^3.4.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "nodemon": "^1.11.0",
+    "scmp": "^2.0.0"
+  }
+}
