@@ -17,6 +17,9 @@
     "koa": "^2.3.0",
     "nuxt": "^1.0.0-rc11",
     "source-map-support": "^0.4.15",
+    "three": "^0.87.1",
+    "three-mtl-loader": "^1.0.1",
+    "three-trackballcontrols": "^0.0.5",
     "transform-runtime": "^0.0.0"
   },
   "devDependencies": {

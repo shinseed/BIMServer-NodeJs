@@ -20,6 +20,9 @@ module.exports = {
   plugins:[
     {
       src:'~/plugins/eleme-ui'
+    },
+    {
+      src:'~/plugins/vue-threejs-view'
     }
   ],
   /*

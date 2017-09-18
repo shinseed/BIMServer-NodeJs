@@ -87,6 +87,8 @@ module.exports = {
   css: ['~assets/css/main.css'],
   plugins: [{
     src: '~/plugins/eleme-ui'
+  }, {
+    src: '~/plugins/vue-threejs-view'
   }],
   /*
   ** Customize the progress-bar color

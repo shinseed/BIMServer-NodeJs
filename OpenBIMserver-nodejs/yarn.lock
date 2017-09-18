@@ -5523,6 +5523,30 @@ text-table@~0.2.0:
   version "0.2.0"
   resolved "http://registry.npm.taobao.org/text-table/download/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
 
+three-mtl-loader@^1.0.1:
+  version "1.0.1"
+  resolved "http://registry.npm.taobao.org/three-mtl-loader/download/three-mtl-loader-1.0.1.tgz#c0894bc5bd917c74c004361e978b1c222600828b"
+  dependencies:
+    three "^0.79.0"
+
+three-trackballcontrols@^0.0.5:
+  version "0.0.5"
+  resolved "http://registry.npm.taobao.org/three-trackballcontrols/download/three-trackballcontrols-0.0.5.tgz#d07818f0da68c39ed260bc8a90b5c7b818a6c644"
+  dependencies:
+    three "^0.74.0"
+
+three@^0.74.0:
+  version "0.74.0"
+  resolved "http://registry.npm.taobao.org/three/download/three-0.74.0.tgz#648a2a418dae9e8b5de14661fdc84d38429b72da"
+
+three@^0.79.0:
+  version "0.79.0"
+  resolved "http://registry.npm.taobao.org/three/download/three-0.79.0.tgz#3af96fda47f68b7ab093c298dfa335fa45da0cf4"
+
+three@^0.87.1:
+  version "0.87.1"
+  resolved "http://registry.npm.taobao.org/three/download/three-0.87.1.tgz#466a34edc4543459ced9b9d7d276b65216fe2ba8"
+
 throttle-debounce@^1.0.1:
   version "1.0.1"
   resolved "http://registry.npm.taobao.org/throttle-debounce/download/throttle-debounce-1.0.1.tgz#dad0fe130f9daf3719fdea33dc36a8e6ba7f30b5"
