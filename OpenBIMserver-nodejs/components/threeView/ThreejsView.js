@@ -3,23 +3,18 @@ import util from './util.js';
 
 export default{
   name:'vue-threejs-view',
-  render(h){
-    return(
-      <div>
-        <canvas id={this.canvas_id}></canvas>
-      </div>
-    )
-  },
-   data(){
-    return {
-      canvas_id:`canvas_id${new Date().getDate()}`,
-      width:400,
-      height:400
-    }
+  data(){
+   return {
+     width:400,
+     height:400
+   }
+ },
+   render(h){
+     return (<canvas></canvas>);
   },
   methods:{
     init(){
-      new util.Three(this.canvas_id,this.width,this.height);
+      new util.Three(this.$el,this.width,this.height);
     }
   },
 

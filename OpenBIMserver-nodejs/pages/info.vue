@@ -10,7 +10,10 @@
       :props="defaultProps">
     </el-tree>
   </el-col>
-  <el-col :span="12">
+  <el-col :span="6">
+    <vue-threejs-view/>
+  </el-col>
+  <el-col :span="6">
     <vue-threejs-view/>
   </el-col>
 </el-row>

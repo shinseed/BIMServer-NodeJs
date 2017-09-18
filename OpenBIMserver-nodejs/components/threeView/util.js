@@ -3,8 +3,8 @@ import {TrackballControls} from './TrackballControls'
 
 
 class Three {
-  constructor(id,w,h) {
-    this.canvas=document.getElementById(id);
+  constructor(canvas,w,h) {
+    this.canvas=canvas;
     this.camera=null;
     this.controls=null;
     this.scene=null;
