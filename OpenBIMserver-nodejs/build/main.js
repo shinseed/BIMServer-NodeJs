@@ -88,6 +88,9 @@ module.exports = {
   plugins: [{
     src: '~/plugins/eleme-ui'
   }, {
+    src: '~/plugins/JSZip',
+    ssr: false
+  }, {
     src: '~/plugins/vue-threejs-view'
   }],
   /*

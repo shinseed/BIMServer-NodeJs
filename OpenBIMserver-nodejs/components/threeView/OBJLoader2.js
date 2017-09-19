@@ -1051,4 +1051,5 @@ THREE.OBJLoader2 = (function () {
 
 	return OBJLoader2;
 })();
-module.exports=THREE.OBJLoader2;
+let OBJLoader2=THREE.OBJLoader2;
+export {OBJLoader2}

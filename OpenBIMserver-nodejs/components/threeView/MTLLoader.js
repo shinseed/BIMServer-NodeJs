@@ -549,4 +549,7 @@ THREE.MTLLoader.MaterialCreator.prototype = {
 	}
 
 };
-module.exports=THREE.MTLLoader;
+let MTLLoader=THREE.MTLLoader;
+export {
+	MTLLoader
+}

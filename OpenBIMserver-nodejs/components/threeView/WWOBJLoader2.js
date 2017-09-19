@@ -1,5 +1,8 @@
 var THREE=require('three');
-var THREE.OBJLoader2=require('./OBJLoader2')
+import {OBJLoader2} from './OBJLoader2';
+import {MTLLoader} from './MTLLoader';
+THREE.MTLLoader=MTLLoader;
+THREE.OBJLoader2=OBJLoader2;
 if ( THREE.OBJLoader2 === undefined ) { THREE.OBJLoader2 = {} }
 
 /**
@@ -1222,4 +1225,5 @@ THREE.OBJLoader2.WWOBJLoader2.LoadedMeshUserOverride = function ( disregardMesh,
 		material: Validator.verifyInput( material, null )
 	};
 };
-module.exports=THREE.OBJLoader2.WWOBJLoader2;
+let WWOBJLoader2=THREE.OBJLoader2.WWOBJLoader2;
+export {WWOBJLoader2}
