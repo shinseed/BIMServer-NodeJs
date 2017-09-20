@@ -483,7 +483,7 @@ THREE.OBJLoader2.WWOBJLoader2 = (function () {
 				}
 
 				if ( !disregardMesh ) {
-					
+
 					var mesh = new THREE.Mesh( bufferGeometry, material );
 
 					mesh.name = meshName;

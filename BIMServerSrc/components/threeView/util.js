@@ -1,6 +1,7 @@
 var THREE = require('three');//threejs不用import方式 是不想webpack 出打包警告提示
 import {TrackballControls} from './TrackballControls';
 import {WWOBJLoader2} from './WWOBJLoader2';
+import {Octree} from 	'./Octree';
 
 
 
@@ -114,9 +115,11 @@ class Three {
 			fov: 45
 		};
     this.cameraTarget = this.cameraDefaults.posCameraTarget;
+		this.octree;
     this.loadCounter = 0;
     this.objs2Load = [];
     this.allAssets = [];
+		this.meshs=[];
 
     this.processing = false;
 
@@ -126,7 +129,7 @@ class Three {
   init(){
     this.camera = new THREE.PerspectiveCamera( this.cameraDefaults.fov, this.aspectRatio, this.cameraDefaults.near, this.cameraDefaults.far );
     this.resetCamera();
-  				// world
+  	// world
   	this.scene = new THREE.Scene();
   	this.scene.background = new THREE.Color( 0xcccccc );
   	// this.scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
@@ -143,7 +146,22 @@ class Three {
   	var light = new THREE.AmbientLight( 0x222222 );
   	this.scene.add( light );
 
+		// create octree
+		this.octree = new Octree( {
+		// when undeferred = true, objects are inserted immediately
+		// instead of being deferred until next octree.update() call
+		// this may decrease performance as it forces a matrix update
+		undeferred: false,
+		// set the max depth of tree
+		depthMax: Infinity,
+		// max number of objects before nodes split or merge
+		objectsThreshold: 8,
+		// percent between 0 and 1 that nodes will overlap each other
+		// helps insert objects that lie over more than one node
+		overlapPct: 0.15
 
+		// pass the scene to visualize the octree
+		} );
   	// renderer
   	this.renderer = new THREE.WebGLRenderer( { antialias: true,canvas:this.canvas,autoClear: true } );
   	// this.renderer.setPixelRatio( window.devicePixelRatio );
@@ -164,7 +182,26 @@ class Three {
           // this.controls.keys = [ 65, 83, 68 ];
     // this.controls.addEventListener( 'change', this.render.bind(this) );
   	this.render();
+		this.canvas.addEventListener('click',this.canvasHandleClick.bind(this));
   }
+	canvasHandleClick(event){
+		let x=(event.offsetX/this.canvas.width)*2-1;
+		let y=-(event.offsetY/this.canvas.height)*2+1;
+		let mouse3D=new THREE.Vector2(x,y);
+		let raycaster = new THREE.Raycaster();
+		raycaster.setFromCamera( mouse3D, this.camera );
+		let meshesSearch = this.octree.search( raycaster.ray.origin, raycaster.ray.far, true, raycaster.ray.direction );
+		// let intersections = raycaster.intersectObjects( this.meshs );
+    let intersections = raycaster.intersectOctreeObjects(meshesSearch);
+		if(intersections.length>0){
+			intersections.sort((a,b)=>{
+				return a.distance-b.distance;
+			});
+			intersections[0].object.position.y=100;
+		}
+			console.log(intersections);
+
+	}
   resetCamera(){
     this.camera.position.copy( this.cameraDefaults.posCamera );
 		this.cameraTarget.copy( this.cameraDefaults.posCameraTarget );
@@ -185,7 +222,7 @@ class Three {
 			var count = Boolean( materials ) ? materials.length : 0;
 			console.log( 'Loaded #' + count + ' materials.' );
 		};
-		var meshLoaded = function ( meshName ) {
+		var meshLoaded =  ( meshName ,bufferGeometry,materials) =>{
 			// just for demonstration...
 		};
 		var errorWhileLoading = function () {
@@ -250,7 +287,6 @@ class Three {
 		this.allAssets = [];
   }
   updateAssets(objs){
-		console.log(objs);
     this.objs2Load = [];
 		this.loadCounter = 0;
 		this.processing = true;
@@ -269,6 +305,8 @@ class Three {
 					pivot = new THREE.Object3D();
 					pivot.position.set( obj2Load.pos.x, obj2Load.pos.y, obj2Load.pos.z );
 					pivot.scale.set( obj2Load.scale, obj2Load.scale, obj2Load.scale );
+					pivot.name=obj2Load.name;
+					console.log(pivot)
 					obj2Load.pivot = pivot;
 					this.objs2Load.push( obj2Load );
 					this.allAssets[obj2Load.name] = obj2Load;
@@ -298,6 +336,7 @@ class Three {
 			var obj2Load = scope.objs2Load[ scope.loadCounter ];
 			var prepData;
 			scope.loadCounter ++;
+
 
 			scope.scene.add( obj2Load.pivot );
 
@@ -352,6 +391,14 @@ class Three {
 
 			}
 		} else {
+			this.objs2Load.forEach((item)=>{
+
+				item.pivot.children.forEach((child)=>{
+					this.octree.add(child);
+					this.meshs.push(child);
+				})
+			})
+			// this.meshs.concat(obj2Load.pivot.children);
 
 			scope.processing = false;
 
@@ -361,11 +408,9 @@ class Three {
 		if ( ! this.renderer.autoClear ) this.renderer.clear();
 
 			this.controls.update();
-			this.scene.traverse(  ( object ) =>{
-					if ( object instanceof THREE.LOD ) {
-						object.update( this.camera );
-					}
-				} );
+
+			this.octree.update();
+
 			this.renderer.render( this.scene, this.camera );
 	}
 }
