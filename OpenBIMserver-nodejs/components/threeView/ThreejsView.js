@@ -21,17 +21,19 @@ export default{
         app.updateAssets( this.loadData );
         app.resizeDisplayGL();
         app.initPostGL();
-    var loadAssets = function ( assets ) {
+        console.log(app);
+    
+    let loadAssets = function ( assets ) {
     				if ( ! app.processing ) {
     					app.updateAssets( assets );
     					app.reloadAssets();
     				}
     		};
-    var render = function () {
+    let render = function () {
 				requestAnimationFrame( render );
 				app.render();
 			};
-    var resizeWindow = function () {
+    let resizeWindow = function () {
 				app.resizeDisplayGL();
 			};
       render();

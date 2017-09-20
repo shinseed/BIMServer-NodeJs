@@ -1,4 +1,4 @@
-var THREE = require('three');
+var THREE = require('three');//threejs不用import方式 是不想webpack 出打包警告提示
 import {TrackballControls} from './TrackballControls';
 import {WWOBJLoader2} from './WWOBJLoader2';
 
@@ -142,6 +142,38 @@ class Three {
   	this.scene.add( light );
   	var light = new THREE.AmbientLight( 0x222222 );
   	this.scene.add( light );
+
+
+
+				//
+				// var geometry = [
+				// 	[ new THREE.IcosahedronGeometry( 100, 4 ), 50 ],
+				// 	[ new THREE.IcosahedronGeometry( 100, 3 ), 300 ],
+				// 	[ new THREE.IcosahedronGeometry( 100, 2 ), 1000 ],
+				// 	[ new THREE.IcosahedronGeometry( 100, 1 ), 2000 ],
+				// 	[ new THREE.IcosahedronGeometry( 100, 0 ), 8000 ]
+				// ];
+				// var material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: true } );
+				// var i, j, mesh, lod;
+				// for ( j = 0; j < 10; j ++ ) {
+				// 	lod = new THREE.LOD();
+				// 	for ( i = 0; i < geometry.length; i ++ ) {
+				// 		mesh = new THREE.Mesh( geometry[ i ][ 0 ], material );
+				// 		console.log( geometry[ i ][ 0 ]);
+				// 			console.log(geometry[ i ][ 1 ]);
+				// 		mesh.scale.set( 1.5, 1.5, 1.5 );
+				// 		mesh.updateMatrix();
+				// 		mesh.matrixAutoUpdate = false;
+				//
+				// 		lod.addLevel( mesh, geometry[ i ][ 1 ] );
+				// 	}
+				// 	lod.position.x = 10000 * ( 0.5 - Math.random() );
+				// 	lod.position.y =  7500 * ( 0.5 - Math.random() );
+				// 	lod.position.z = 10000 * ( 0.5 - Math.random() );
+				// 	lod.updateMatrix();
+				// 	lod.matrixAutoUpdate = false;
+				// 	this.scene.add( lod );
+				// }
 
   	// renderer
   	this.renderer = new THREE.WebGLRenderer( { antialias: true,canvas:this.canvas,autoClear: true } );
@@ -360,7 +392,11 @@ class Three {
 		if ( ! this.renderer.autoClear ) this.renderer.clear();
 
 			this.controls.update();
-
+			this.scene.traverse(  ( object ) =>{
+					if ( object instanceof THREE.LOD ) {
+						object.update( this.camera );
+					}
+				} );
 			this.renderer.render( this.scene, this.camera );
 	}
 }

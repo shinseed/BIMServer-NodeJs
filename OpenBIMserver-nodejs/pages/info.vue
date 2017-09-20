@@ -38,7 +38,7 @@ var dataModel = function ( name, pathBase, fileObj, fileMtl, pathTexture, fileZi
 };
 var load=[];
 var load2=[];
-load.push( new dataModel( 'oven', '/models/', 'xx.obj', 'xx.mtl', '/models/', 'xx.zip', { x: 0, y: 0, z: 0 } ) );
+// load.push( new dataModel( 'oven', '/models/', 'xx.obj', null, null, 'xx.zip', { x: 0, y: 0, z: 0 } ) );
 // load.push( new dataModel( 'male02', '/models/', 'xx.obj', 'xx.mtl', '/models/', null, { x: 0, y: 0, z: 0 } ) );
 load.push( new dataModel( 'male01', '/models/', 'aa.obj', 'aa.mtl', '/models/', 'aa.zip', { x: 0, y: 100, z: 0 } ) );
 // load2.push( new dataModel( 'male02', '/models/', 'aa.obj', 'aa.mtl', '/models/', null, { x: 0, y: 1000, z: 0 } ) );

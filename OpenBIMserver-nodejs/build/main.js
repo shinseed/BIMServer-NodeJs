@@ -91,6 +91,9 @@ module.exports = {
     src: '~/plugins/JSZip',
     ssr: false
   }, {
+    src: '~/plugins/dat.gui.min',
+    ssr: false
+  }, {
     src: '~/plugins/vue-threejs-view'
   }],
   /*

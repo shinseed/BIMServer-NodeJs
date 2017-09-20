@@ -889,7 +889,6 @@ THREE.OBJLoader2 = (function () {
 		 */
 		MeshCreator.prototype.buildMesh = function ( rawObjectDescriptions, inputObjectCount, absoluteVertexCount,
 													 absoluteColorCount, absoluteNormalCount, absoluteUvCount ) {
-
 			if ( this.debug ) console.log( 'MeshCreator.buildRawMeshData:\nInput object no.: ' + inputObjectCount );
 
 			var bufferGeometry = new THREE.BufferGeometry();
@@ -1016,7 +1015,6 @@ THREE.OBJLoader2 = (function () {
 			var mesh = new THREE.Mesh( bufferGeometry, material );
 			mesh.name = rawObjectDescription.groupName !== '' ? rawObjectDescription.groupName : rawObjectDescription.objectName;
 			this.sceneGraphBaseNode.add( mesh );
-
 			this.globalObjectCount++;
 		};
 

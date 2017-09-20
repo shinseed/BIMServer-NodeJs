@@ -26,6 +26,10 @@ module.exports = {
       ssr:false
     },
     {
+      src:'~/plugins/dat.gui.min',
+      ssr:false
+    },
+    {
       src:'~/plugins/vue-threejs-view'
     }
   ],
