@@ -483,24 +483,15 @@ THREE.OBJLoader2.WWOBJLoader2 = (function () {
 				}
 
 				if ( !disregardMesh ) {
-					// var material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: true } );
+					
 					var mesh = new THREE.Mesh( bufferGeometry, material );
-					// mesh.updateMatrix();
-				  // mesh.matrixAutoUpdate = false;
-					// var lod = new THREE.LOD();
+
 					mesh.name = meshName;
-					// console.log(mesh);
-					// mesh.wireframe=true;
+
 					if ( this.streamMeshes ) {
 
 						this.sceneGraphBaseNode.add( mesh );
-						// lod.addLevel( mesh, this.counter*50000)
-						// lod.updateMatrix();
-						// lod.position.x = 10000 * ( 0.5 - Math.random() );
-						// lod.position.y =  7500 * ( 0.5 - Math.random() );
-						// lod.position.z = 10000 * ( 0.5 - Math.random() );
-						// lod.matrixAutoUpdate = false;
-						// this.sceneGraphBaseNode.add(lod)
+
 
 					} else {
 
