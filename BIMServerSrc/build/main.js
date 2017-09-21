@@ -65,13 +65,14 @@ module.exports =
 /******/ 	__webpack_require__.p = "/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
+var UglifyJSPlugin = __webpack_require__(3);
 module.exports = {
   /*
   ** Headers of the page
@@ -79,7 +80,8 @@ module.exports = {
   head: {
     title: 'starter',
     meta: [{ charset: 'utf-8' }, { name: 'viewport', content: 'width=device-width, initial-scale=1' }, { hid: 'description', name: 'description', content: 'Nuxt.js project' }],
-    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
+    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    script: [{ src: '/js/dat.min.js' }]
   },
   /*
   ** Global CSS
@@ -90,16 +92,38 @@ module.exports = {
   }, {
     src: '~/plugins/JSZip',
     ssr: false
-  }, {
-    src: '~/plugins/dat.gui.min',
-    ssr: false
-  }, {
+  },
+  // {
+  //   src:'~/plugins/dat',
+  //   ssr:false
+  // },
+  {
     src: '~/plugins/vue-threejs-view'
   }],
   /*
   ** Customize the progress-bar color
   */
-  loading: { color: '#3B8070' }
+  loading: { color: '#3B8070' },
+  build: {
+    extend: function extend(config, _ref) {
+      var isDev = _ref.isDev,
+          isClient = _ref.isClient;
+
+      config.plugins.forEach(function (item, index) {
+        if (item.options) {
+          if (item.options.minimize) {
+            config.plugins.splice(index, 1);
+          }
+          if (item.options.compress) {
+            item.options.mangle = {
+              except: ['Parser', 'Consts', 'Validator', 'RawObject', 'app', 'RawObjectDescription', 'WWOBJLoader', 'WWMeshCreator', 'WWOBJLoaderRef', 'WWOBJLoaderRunner']
+            };
+          }
+        }
+      });
+      console.log(config.plugins);
+    }
+  }
 };
 
 /***/ },
@@ -116,6 +140,12 @@ module.exports = require("nuxt");
 
 /***/ },
 /* 3 */
+/***/ function(module, exports) {
+
+module.exports = require("uglifyjs-webpack-plugin");
+
+/***/ },
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";

@@ -55,13 +55,9 @@ export default{
      return (<canvas></canvas>);
   },
   methods:{
-    init(){
-      initThree(this.$el,this.width,this.height,this.loadData);
-    }
   },
-
   mounted(){
-   this.init()
+    initThree(this.$el,this.width,this.height,this.loadData);
   }
 
 }

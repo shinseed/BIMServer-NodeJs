@@ -2,6 +2,8 @@ var THREE = require('three');//threejs不用import方式 是不想webpack 出打
 import {TrackballControls} from './TrackballControls';
 import {WWOBJLoader2} from './WWOBJLoader2';
 import {Octree} from 	'./Octree';
+// var dat=require('dat.gui');
+// console.log(dat);
 
 
 
@@ -93,13 +95,34 @@ var ZipTools = (function () {
 
 })();
 
+/**
+ * threeview class
+ * @class
+ */
 class Three {
   constructor(canvas,w,h) {
     this.canvas=canvas;
     this.camera=null;
     this.controls=null;
     this.scene=null;
+
+		this.raycaster =null;
+		this.mouse = null;
+		this.mouseLine=null;
+		this.INTERSECTED=null;
     this.renderer=null;
+		this.intersectionDefault = {
+					intersects: false,
+					point: new THREE.Vector3(),
+					normal: new THREE.Vector3()
+				};
+		this.mouseMaterialDefault =new THREE.MeshPhongMaterial(
+					 { color: 0xadf1a7,
+						 specular: 0x009900,
+						 shininess: 30,
+						//  wireframe:true,
+						//  wireframeLinewidth:10,
+						 flatShading: true } );
     this.width=w;
     this.height=h;
     this.aspectRatio=w/h;
@@ -123,6 +146,13 @@ class Three {
 
     this.processing = false;
 
+
+		//  this.gui = new dat.GUI();
+		//  this.gui.add( this.width, 'minScale', 1, 30 );
+		//  this.gui.add( this.width, 'maxScale', 1, 30 );
+		//  this.gui.add( this.width, 'rotate' );
+		//  this.gui.add( this.width, 'clear' );
+		//  this.gui.open();
     this.init();
     // this.animate();
   }
@@ -162,6 +192,18 @@ class Three {
 
 		// pass the scene to visualize the octree
 		} );
+
+		//鼠标移动相关操作
+
+		this.raycaster = new THREE.Raycaster();
+		this.mouse = new THREE.Vector2();
+		this.mouseHelper= new THREE.Mesh( new THREE.BoxGeometry( 1, 1, 10 ), new THREE.MeshNormalMaterial() );
+		this.mouseHelper.visible = false;
+		this.scene.add( this.mouseHelper );
+		let mouseGeometry = new THREE.Geometry();
+				mouseGeometry.vertices.push( new THREE.Vector3(), new THREE.Vector3() );
+		this.mouseLine = new THREE.Line( mouseGeometry, new THREE.LineBasicMaterial( { linewidth: 4 } ) );
+		this.scene.add( this.mouseLine );
   	// renderer
   	this.renderer = new THREE.WebGLRenderer( { antialias: true,canvas:this.canvas,autoClear: true } );
   	// this.renderer.setPixelRatio( window.devicePixelRatio );
@@ -172,34 +214,79 @@ class Three {
   				//
   				//
     this.controls = new THREE.TrackballControls( this.camera,this.canvas );
-          // this.controls.rotateSpeed = 1.0;
-          // this.controls.zoomSpeed = 1.2;
-          // this.controls.panSpeed = 0.8;
-          // this.controls.noZoom = false;
-          // this.controls.noPan = false;
-          // this.controls.staticMoving = true;
-          // this.controls.dynamicDampingFactor = 0.3;
-          // this.controls.keys = [ 65, 83, 68 ];
-    // this.controls.addEventListener( 'change', this.render.bind(this) );
+
   	this.render();
-		this.canvas.addEventListener('click',this.canvasHandleClick.bind(this));
+		//监听事件
+		this.canvas.addEventListener('click',this.canvasHandleClick.bind(this),false);
+		this.canvas.addEventListener('mousemove',this.canvasHandleMousemove.bind(this),false);
   }
+
+	/**
+	 * canvasHandleClick - 模型点击事件
+	 *
+	 * @param  {type} event description
+	 * @return {type}       description
+	 */
 	canvasHandleClick(event){
+		event.preventDefault();
+		//canvas坐标-webgl坐标
 		let x=(event.offsetX/this.canvas.width)*2-1;
 		let y=-(event.offsetY/this.canvas.height)*2+1;
-		let mouse3D=new THREE.Vector2(x,y);
-		let raycaster = new THREE.Raycaster();
-		raycaster.setFromCamera( mouse3D, this.camera );
-		let meshesSearch = this.octree.search( raycaster.ray.origin, raycaster.ray.far, true, raycaster.ray.direction );
+		this.mouse.x=x;
+		this.mouse.y=y;
+
+		this.raycaster.setFromCamera( this.mouse, this.camera );
+		let meshesSearch = this.octree.search( this.raycaster.ray.origin, this.raycaster.ray.far, true, this.raycaster.ray.direction );
 		// let intersections = raycaster.intersectObjects( this.meshs );
-    let intersections = raycaster.intersectOctreeObjects(meshesSearch);
-		if(intersections.length>0){
-			intersections.sort((a,b)=>{
-				return a.distance-b.distance;
-			});
-			intersections[0].object.position.y=100;
-		}
+    let intersections = this.raycaster.intersectOctreeObjects(meshesSearch);
+		//
+		if ( intersections.length > 0 ) {
+					intersections.sort((a,b)=>{
+						return a.distance-b.distance;
+					});
+				if ( this.INTERSECTED != intersections[ 0 ].object ) {
+					if ( this.INTERSECTED ) this.INTERSECTED.material= this.INTERSECTED.currentHex;
+						this.INTERSECTED = intersections[ 0 ].object;
+						this.INTERSECTED.currentHex = this.INTERSECTED.material;
+						this.INTERSECTED.material=this.mouseMaterialDefault;
+					}
+		} else {
+					if ( this.INTERSECTED ) this.INTERSECTED.material= this.INTERSECTED.currentHex ;
+						this.INTERSECTED = null;
+				}
 			console.log(intersections);
+
+	}
+	canvasHandleMousemove(event){
+		event.preventDefault();
+		let x=(event.offsetX/this.canvas.width)*2-1;
+		let y=-(event.offsetY/this.canvas.height)*2+1;
+		this.mouse.x=x;
+		this.mouse.y=y;
+
+		this.raycaster.setFromCamera( this.mouse, this.camera );
+		let meshesSearch = this.octree.search( this.raycaster.ray.origin, this.raycaster.ray.far, true, this.raycaster.ray.direction );
+		let intersections = this.raycaster.intersectOctreeObjects(meshesSearch);
+
+		if ( intersections.length > 0 ) {
+					intersections.sort((a,b)=>{
+						return a.distance-b.distance;
+					});
+					var p = intersections[ 0 ].point;
+					this.mouseHelper.position.copy( p );
+					this.intersectionDefault.point.copy( p );
+					var n = intersections[ 0 ].face.normal.clone();
+					n.multiplyScalar( 10 );
+					n.add( intersections[ 0 ].point );
+					this.intersectionDefault.normal.copy( intersections[ 0 ].face.normal );
+					this.mouseHelper.lookAt( n );
+					this.mouseLine.geometry.vertices[ 0 ].copy( this.intersectionDefault.point );
+					this.mouseLine.geometry.vertices[ 1 ].copy( n );
+					this.mouseLine.geometry.verticesNeedUpdate = true;
+					this.intersectionDefault.intersects = true;
+		} else {
+					this.intersectionDefault.intersects = false;
+		}
 
 	}
   resetCamera(){
@@ -390,15 +477,13 @@ class Three {
 				scope.wwObjLoader2.run();
 
 			}
-		} else {
+		} else {//当所有模型加载完毕后填充 octree
 			this.objs2Load.forEach((item)=>{
-
 				item.pivot.children.forEach((child)=>{
 					this.octree.add(child);
-					this.meshs.push(child);
+					// this.meshs.push(child);
 				})
 			})
-			// this.meshs.concat(obj2Load.pivot.children);
 
 			scope.processing = false;
 

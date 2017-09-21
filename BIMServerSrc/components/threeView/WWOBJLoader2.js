@@ -610,7 +610,6 @@ THREE.OBJLoader2.WWOBJLoader2 = (function () {
 	WWOBJLoader2.prototype._buildWebWorkerCode = function ( existingWorkerCode ) {
 		if ( Validator.isValid( existingWorkerCode ) ) this.workerCode = existingWorkerCode;
 		if ( ! Validator.isValid( this.workerCode ) ) {
-
 			console.time( 'buildWebWorkerCode' );
 			var wwDef = (function () {
 

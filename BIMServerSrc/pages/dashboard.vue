@@ -39,7 +39,7 @@ var dataModel = function(name, pathBase, fileObj, fileMtl, pathTexture, fileZip,
 };
 var load = [];
 var load2 = [];
-load.push( new dataModel( '车站', '/models/', 'xx.obj', null, null, 'xx.zip', { x: 0, y: 0, z: 0 } ) );
+load.push( new dataModel( '车站', '/models/', 'xx.obj', 'xx.mtl', '/models/', 'xx.zip', { x: 0, y: 0, z: 0 } ) );
 load.push(new dataModel('管线', '/models/', 'aa.obj', 'aa.mtl', '/models/', 'aa.zip', {
     x: 0,
     y: 100,

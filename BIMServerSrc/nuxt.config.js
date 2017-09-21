@@ -1,3 +1,4 @@
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 module.exports = {
   /*
   ** Headers of the page
@@ -11,6 +12,9 @@ module.exports = {
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+    ],
+    script:[
+      {src:'/js/dat.min.js'}
     ]
   },
   /*
@@ -26,15 +30,29 @@ module.exports = {
       ssr:false
     },
     {
-      src:'~/plugins/dat.gui.min',
-      ssr:false
-    },
-    {
       src:'~/plugins/vue-threejs-view'
     }
   ],
   /*
   ** Customize the progress-bar color
   */
-  loading: { color: '#3B8070' }
+  loading: { color: '#3B8070' },
+  build: {
+    extend (config, { isDev, isClient }) {
+      //nuxt bug 重复的webpack配置以及 混淆压缩
+      config.plugins.forEach((item,index)=>{
+        if(item.options){
+          if(item.options.minimize){
+            config.plugins.splice(index,1)
+          }
+          if(item.options.compress){
+            item.options.mangle={
+              except: ['Parser','Consts','Validator', 'RawObject','app', 'RawObjectDescription', 'WWOBJLoader','WWMeshCreator','WWOBJLoaderRef','WWOBJLoaderRunner']
+            }
+          }
+        }
+
+      })
+    }
+}
 }

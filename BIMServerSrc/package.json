@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "dev": "backpack dev",
+    "generate": "nuxt generate",
     "build": "nuxt build && backpack build",
     "start": "cross-env NODE_ENV=production node build/main.js",
     "precommit": "npm run lint",
@@ -13,6 +14,7 @@
   },
   "dependencies": {
     "cross-env": "^5.0.1",
+    "dat.gui": "^0.6.1",
     "element-ui": "^1.4.4",
     "koa": "^2.3.0",
     "nuxt": "^1.0.0-rc11",
@@ -33,6 +35,7 @@
     "eslint-plugin-promise": "^3.4.0",
     "eslint-plugin-standard": "^3.0.1",
     "nodemon": "^1.11.0",
-    "scmp": "^2.0.0"
+    "scmp": "^2.0.0",
+    "uglifyjs-webpack-plugin": "^0.4.6"
   }
 }
