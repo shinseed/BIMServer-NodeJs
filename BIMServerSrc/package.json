@@ -14,16 +14,12 @@
   },
   "dependencies": {
     "cross-env": "^5.0.1",
-    "dat.gui": "^0.6.1",
     "element-ui": "^1.4.4",
     "koa": "^2.3.0",
     "nuxt": "^1.0.0-rc11",
     "source-map-support": "^0.4.15",
     "three": "^0.87.1",
-    "three-mtl-loader": "^1.0.1",
-    "three-trackballcontrols": "^0.0.5",
-    "transform-runtime": "^0.0.0",
-    "vue-awesome-for-toolbar": "^2.3.2"
+    "transform-runtime": "^0.0.0"
   },
   "devDependencies": {
     "babel-eslint": "^7.1.1",

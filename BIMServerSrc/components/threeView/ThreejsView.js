@@ -22,9 +22,6 @@ function initThree(canvas,width,height,loadData) {
       app.resizeDisplayGL();
       app.initPostGL();
       console.log(app);
-  let gui = new dat.GUI();
-      gui.add(app, 'clearAllAssests' );
-      gui.open();
   let loadAssets = function ( assets ) {
           if ( ! app.processing ) {
             app.updateAssets( assets );
