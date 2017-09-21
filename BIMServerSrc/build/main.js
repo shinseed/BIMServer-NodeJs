@@ -92,12 +92,7 @@ module.exports = {
   }, {
     src: '~/plugins/JSZip',
     ssr: false
-  },
-  // {
-  //   src:'~/plugins/dat',
-  //   ssr:false
-  // },
-  {
+  }, {
     src: '~/plugins/vue-threejs-view'
   }],
   /*
@@ -109,6 +104,7 @@ module.exports = {
       var isDev = _ref.isDev,
           isClient = _ref.isClient;
 
+      //nuxt bug 重复的webpack配置以及 混淆压缩
       config.plugins.forEach(function (item, index) {
         if (item.options) {
           if (item.options.minimize) {
@@ -121,7 +117,6 @@ module.exports = {
           }
         }
       });
-      console.log(config.plugins);
     }
   }
 };

@@ -365,7 +365,7 @@ THREE.TrackballControls = function ( object, domElement ) {
 			return;
 
 		} else if ( event.keyCode === _this.keys[ STATE.ROTATE ] && ! _this.noRotate ) {
-
+			
 			_state = STATE.ROTATE;
 
 		} else if ( event.keyCode === _this.keys[ STATE.ZOOM ] && ! _this.noZoom ) {
@@ -435,7 +435,6 @@ THREE.TrackballControls = function ( object, domElement ) {
 		event.stopPropagation();
 
 		if ( _state === STATE.ROTATE && ! _this.noRotate ) {
-
 			_movePrev.copy( _moveCurr );
 			_moveCurr.copy( getMouseOnCircle( event.pageX, event.pageY ) );
 

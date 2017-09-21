@@ -22,7 +22,9 @@ function initThree(canvas,width,height,loadData) {
       app.resizeDisplayGL();
       app.initPostGL();
       console.log(app);
-
+  let gui = new dat.GUI();
+      gui.add(app, 'clearAllAssests' );
+      gui.open();
   let loadAssets = function ( assets ) {
           if ( ! app.processing ) {
             app.updateAssets( assets );
@@ -38,6 +40,7 @@ function initThree(canvas,width,height,loadData) {
     };
     render();
   window.addEventListener( 'resize', resizeWindow, false );
+  return app;
 }
 
 export default{
@@ -57,7 +60,8 @@ export default{
   methods:{
   },
   mounted(){
-    initThree(this.$el,this.width,this.height,this.loadData);
+  let app=  initThree(this.$el,this.width,this.height,this.loadData);
+    this.$emit('listerThree',app)
   }
 
 }

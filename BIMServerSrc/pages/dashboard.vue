@@ -4,6 +4,7 @@
 
 <el-row>
     <el-col :span="2">
+      <i class="el-icon-edit" @click='aa'></i>
         <!-- <el-tree
       :data="data2"
       show-checkbox
@@ -15,7 +16,7 @@
         <span id='feedback'></span>
     </el-col>
     <el-col :span="20">
-        <vue-threejs-view :loadData='loaddata' />
+        <vue-threejs-view v-on:listerThree="xx" :loadData='loaddata' />
         <!-- <vue-threejs-view :loadData='loaddata2'/> -->
         <!-- <vue-threejs-view :loadData='loaddata2'/> -->
     </el-col>
@@ -37,14 +38,15 @@ var dataModel = function(name, pathBase, fileObj, fileMtl, pathTexture, fileZip,
     this.scale = !Boolean(scale) ? 1.0 : scale;
     this.pivot = null;
 };
+let _app;
 var load = [];
 var load2 = [];
 load.push( new dataModel( '车站', '/models/', 'xx.obj', 'xx.mtl', '/models/', 'xx.zip', { x: 0, y: 0, z: 0 } ) );
-load.push(new dataModel('管线', '/models/', 'aa.obj', 'aa.mtl', '/models/', 'aa.zip', {
-    x: 0,
-    y: 100,
-    z: 0
-}));
+// load.push(new dataModel('管线', '/models/', 'aa.obj', 'aa.mtl', '/models/', 'aa.zip', {
+//     x: 0,
+//     y: 100,
+//     z: 0
+// }));
 // load2.push( new dataModel( 'male02', '/models/', 'aa.obj', 'aa.mtl', '/models/', null, { x: 0, y: 1000, z: 0 } ) );
 export default {
     head() {
@@ -99,8 +101,12 @@ export default {
             };
         },
         methods: {
-            xx() {
-                console.log(111);
+            xx(app) {
+              _app=app;
+                console.log(app);
+            },
+            aa(){
+              _app.interfaceVisbileSelects();
             }
         }
 };
