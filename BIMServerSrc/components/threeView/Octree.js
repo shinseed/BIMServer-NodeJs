@@ -2096,6 +2096,7 @@
 
 				object.geometry.faces = facesSearch;
 
+
 			}
 
 			// intersect

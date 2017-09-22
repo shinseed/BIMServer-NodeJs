@@ -4,7 +4,45 @@ import { WWOBJLoader2 } from './WWOBJLoader2';
 import { Octree } from './Octree';
 // var dat=require('dat.gui');
 // console.log(dat);
+var getFaceNormalPosition = function (object, face) {
+    console.log(object,face);
+    var v1 = new THREE.Vector3();
 
+    var keys = ['a', 'b', 'c', 'd'];
+
+    object.updateMatrixWorld(true);
+
+    var size = (size !== undefined) ? size : 1;
+
+    var normalMatrix = new THREE.Matrix3();
+
+    normalMatrix.getNormalMatrix(object.matrixWorld);
+
+    var vertices = new THREE.Vector3();
+
+    var verts = object.geometry.vertices;
+
+    var faces = object.geometry.faces;
+
+    var worldMatrix = object.matrixWorld;
+
+
+    for (var j = 0, jl = face.vertexNormals.length; j < jl; j++) {
+
+        var vertexId = face[ keys[ j ] ];
+        var vertex = verts[ vertexId ];
+
+        var normal = face.vertexNormals[ j ];
+
+        vertices.copy(vertex).applyMatrix4(worldMatrix);
+
+        v1.copy(normal).applyMatrix3(normalMatrix).normalize().multiplyScalar(size);
+
+        v1.add(vertices);
+    }
+
+    return v1;
+};
 
 
 var ZipTools = (function() {
@@ -167,13 +205,19 @@ class Three {
 
         var helper = new THREE.GridHelper(1200, 60, 0xFF4444, 0x404040);
         this.scene.add(helper);
+        //坐标轴辅助
+        var axes = new THREE.AxisHelper(500);
+        this.scene.add(axes);
+        //  this.CameraHelper=new THREE.CameraHelper(this.camera);
+        // this.scene.add(this.CameraHelper);
+
         // guang
         var light = new THREE.DirectionalLight(0xffffff);
         light.position.set(1, 1, 1);
         this.scene.add(light);
-        var light = new THREE.DirectionalLight(0x002288);
-        light.position.set(-1, -1, -1);
-        this.scene.add(light);
+        // var light = new THREE.DirectionalLight(0x002288);
+        // light.position.set(-1, -1, -1);
+        // this.scene.add(light);
         var light = new THREE.AmbientLight(0x222222);
         this.scene.add(light);
 
@@ -195,6 +239,11 @@ class Three {
         });
 
         //鼠标移动相关操作
+        // var geometry = new THREE.CylinderGeometry( 0, 20, 100, 3 );
+				// geometry.translate( 0, 50, 0 );
+				// geometry.rotateX( Math.PI / 2 );
+				// this.helper = new THREE.Mesh( geometry, new THREE.MeshNormalMaterial() );
+				// this.scene.add( this.helper );
 
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
@@ -219,7 +268,6 @@ class Three {
         this.render();
 
     }
-
     /**
      * canvasHandleClick - 模型点击事件
      *
@@ -243,6 +291,8 @@ class Three {
             intersections.sort((a, b) => {
                 return a.distance - b.distance;
             });
+          let xx=  getFaceNormalPosition(intersections[0].object,intersections[0].face)
+          console.log(intersections[0]);
             if(this.isShift){
               for(let item of this.selectModels){
                 if(item==intersections[0].object){
@@ -269,7 +319,7 @@ class Three {
             })
             this.selectModels=[];
         }
-        console.log(intersections);
+        // console.log(intersections);
 
     }
     canvasHandleMousemove(event) {
@@ -280,13 +330,29 @@ class Three {
         this.mouse.y = y;
 
         this.raycaster.setFromCamera(this.mouse, this.camera);
+        // this.raycaster.ray.direction.x=this.camera.position.x;
+        //   this.raycaster.ray.direction.y=this.camera.position.y;
+        //       this.raycaster.ray.direction.z=this.camera.position.z;
         let meshesSearch = this.octree.search(this.raycaster.ray.origin, this.raycaster.ray.far, true, this.raycaster.ray.direction);
         let intersections = this.raycaster.intersectOctreeObjects(meshesSearch);
 
         if (intersections.length > 0) {
+            // console.log(this.raycaster);
             intersections.sort((a, b) => {
                 return a.distance - b.distance;
             });
+            // if(intersections[0].object.parent){
+            //   let rotate=intersections[0].object.parent.rotation;
+            //       if(rotate._x!=0){
+            //         let tmp=intersections[0].face.normal.y;
+            //         intersections[0].face.normal.y=intersections[0].face.normal.z;
+            //         intersections[0].face.normal.z=tmp;
+            //       }
+            // }
+
+          //   this.helper.position.set( 0, 0, 0 );
+					// this.helper.lookAt( intersections[ 0 ].face.normal );
+					// this.helper.position.copy( intersections[ 0 ].point );
             var p = intersections[0].point;
             this.mouseHelper.position.copy(p);
             this.intersectionDefault.point.copy(p);
@@ -295,10 +361,14 @@ class Three {
             n.add(intersections[0].point);
             this.intersectionDefault.normal.copy(intersections[0].face.normal);
             this.mouseHelper.lookAt(n);
+            // this.mouseHelper.rotateX(this.rad);
+
             this.mouseLine.geometry.vertices[0].copy(this.intersectionDefault.point);
             this.mouseLine.geometry.vertices[1].copy(n);
+            // this.mouseLine.geometry.rotateX(this.rad);
             this.mouseLine.geometry.verticesNeedUpdate = true;
             this.intersectionDefault.intersects = true;
+            // console.log( intersections[0]);
         } else {
             this.intersectionDefault.intersects = false;
         }
@@ -392,7 +462,7 @@ class Three {
         this.objs2Load = [];
         this.loadCounter = 0;
         this.processing = true;
-
+        this.rad;
         if (Boolean(objs)) {
 
             var obj2Load;
@@ -408,7 +478,16 @@ class Three {
                     pivot.position.set(obj2Load.pos.x, obj2Load.pos.y, obj2Load.pos.z);
                     pivot.scale.set(obj2Load.scale, obj2Load.scale, obj2Load.scale);
                     pivot.name = obj2Load.name;
-                    console.log(pivot)
+                    console.log(obj2Load);
+                    let radian=Math.PI/180*obj2Load.rotate.angle;
+                    this.rad=radian;
+                    let axis=new THREE.Vector3(obj2Load.rotate.x,obj2Load.rotate.y,obj2Load.rotate.z);
+
+                    console.log(radian,axis);
+                    // pivot.rotateX(radian);
+                    // pivot.rotateOnAxis(axis,radian);
+                    // pivot.updateMatrix();
+                    console.log(pivot.rotateOnAxis)
                     obj2Load.pivot = pivot;
                     this.objs2Load.push(obj2Load);
                     this.allAssets[obj2Load.name] = obj2Load;
@@ -495,6 +574,15 @@ class Three {
         } else { //当所有模型加载完毕后填充 octree
             this.objs2Load.forEach((item) => {
                 item.pivot.children.forEach((child) => {
+                  // child.geometry.computeVertexNormals();
+                  // child.geometry.computeFaceNormals();
+                  // child.matrixWorldNeedsUpdate=true;
+                  // child.geometry.attributes.position.needsUpdate=true;
+                  // child.geometry.attributes.position.dynamic=true
+                  // child.geometry.attributes.normal.needsUpdate=true;
+                  // child.geometry.attributes.normal.dynamic=true;
+                  // child.geometry.attributes.normal.normalized=true;
+                  // console.log(child);
                     this.octree.add(child);
                     // this.meshs.push(child);
                 })
@@ -529,6 +617,8 @@ class Three {
         if (!this.renderer.autoClear) this.renderer.clear();
 
         this.controls.update();
+
+        // this.CameraHelper.update();
 
         this.octree.update();
 

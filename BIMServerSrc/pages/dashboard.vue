@@ -27,7 +27,7 @@
 
 <script>
 
-var dataModel = function(name, pathBase, fileObj, fileMtl, pathTexture, fileZip, pos, scale) {
+var dataModel = function(name, pathBase, fileObj, fileMtl, pathTexture, fileZip, pos, scale,rotate) {
     this.name = name;
     this.pathBase = pathBase;
     this.fileObj = fileObj;
@@ -37,11 +37,12 @@ var dataModel = function(name, pathBase, fileObj, fileMtl, pathTexture, fileZip,
     this.pos = pos;
     this.scale = !Boolean(scale) ? 1.0 : scale;
     this.pivot = null;
+    this.rotate=rotate;
 };
 let _app;
 var load = [];
 var load2 = [];
-load.push( new dataModel( '车站', '/models/', 'xx.obj', 'xx.mtl', '/models/', 'xx.zip', { x: 0, y: 0, z: 0 } ) );
+load.push( new dataModel( '车站', '/models/', 'xx.obj', 'xx.mtl', '/models/', 'xx.zip', { x: 0, y: 0, z: 0 },null,{x:1,y:0,z:0,angle:-90} ) );
 // load.push(new dataModel('管线', '/models/', 'aa.obj', 'aa.mtl', '/models/', 'aa.zip', {
 //     x: 0,
 //     y: 100,
@@ -102,7 +103,7 @@ export default {
         },
         methods: {
             xx(app) {
-              _app=app;
+              window._app=app;
                 console.log(app);
             },
             aa(){

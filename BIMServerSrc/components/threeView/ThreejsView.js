@@ -15,6 +15,7 @@ function initThree(canvas,width,height,loadData) {
   loadData.forEach((item)=>{
     const obj = Object.assign({}, item);
     obj.pos=Object.assign({},item.pos);
+    obj.rotate=Object.assign({},item.rotate)
     data.push(obj);
   });
   let app=  new util.Three(canvas,width,height);
