@@ -9,26 +9,12 @@ import util from './util.js';
  * @param  {type} loadData description
  * @return {type}          description
  */
-function initThree(canvas,width,height,loadData) {
-  let data=[];
-  //解除vue obdata
-  loadData.forEach((item)=>{
-    const obj = Object.assign({}, item);
-    obj.pos=Object.assign({},item.pos);
-    obj.rotate=Object.assign({},item.rotate)
-    data.push(obj);
-  });
+function initThree(canvas,width,height) {
   let app=  new util.Three(canvas,width,height);
-      app.updateAssets(data);
+      // app.updateAssets(data);
       app.resizeDisplayGL();
       app.initPostGL();
-      console.log(app);
-  let loadAssets = function ( assets ) {
-          if ( ! app.processing ) {
-            app.updateAssets( assets );
-            app.reloadAssets();
-          }
-      };
+
   let render = function () {
       requestAnimationFrame( render );
       app.render();
@@ -44,12 +30,12 @@ function initThree(canvas,width,height,loadData) {
 export default{
   name:'vue-threejs-view',
   props:{
-    loadData: Array
+    wh: Object
   },
   data(){
    return {
-     width:1000,
-     height:600
+     width:this.wh.width,
+     height:this.wh.height
    }
  },
    render(h){
@@ -58,7 +44,8 @@ export default{
   methods:{
   },
   mounted(){
-  let app=  initThree(this.$el,this.width,this.height,this.loadData);
+
+  let app=  initThree(this.$el,this.width,this.height);
     this.$emit('listerThree',app)
   }
 

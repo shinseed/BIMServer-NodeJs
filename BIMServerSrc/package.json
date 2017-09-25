@@ -19,7 +19,8 @@
     "nuxt": "^1.0.0-rc11",
     "source-map-support": "^0.4.15",
     "three": "^0.87.1",
-    "transform-runtime": "^0.0.0"
+    "transform-runtime": "^0.0.0",
+    "tween.js": "^16.6.0"
   },
   "devDependencies": {
     "babel-eslint": "^7.1.1",

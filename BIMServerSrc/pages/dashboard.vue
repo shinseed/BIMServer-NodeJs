@@ -16,7 +16,7 @@
         <span id='feedback'></span>
     </el-col>
     <el-col :span="20">
-        <vue-threejs-view v-on:listerThree="xx" :loadData='loaddata' />
+        <vue-threejs-view v-on:listerThree="xx" :wh='wh'/>
         <!-- <vue-threejs-view :loadData='loaddata2'/> -->
         <!-- <vue-threejs-view :loadData='loaddata2'/> -->
     </el-col>
@@ -37,17 +37,17 @@ var dataModel = function(name, pathBase, fileObj, fileMtl, pathTexture, fileZip,
     this.pos = pos;
     this.scale = !Boolean(scale) ? 1.0 : scale;
     this.pivot = null;
-    this.rotate=rotate;
+    this.rotate=rotate?rotate:{x:0,y:0,z:0,angle:0};
 };
 let _app;
 var load = [];
 var load2 = [];
-load.push( new dataModel( '车站', '/models/', 'xx.obj', 'xx.mtl', '/models/', 'xx.zip', { x: 0, y: 0, z: 0 },null,{x:1,y:0,z:0,angle:-90} ) );
-// load.push(new dataModel('管线', '/models/', 'aa.obj', 'aa.mtl', '/models/', 'aa.zip', {
-//     x: 0,
-//     y: 100,
-//     z: 0
-// }));
+// load.push( new dataModel( '车站', '/models/', 'xx.obj', 'xx.mtl', '/models/', 'xx.zip', { x: 0, y: 0, z: 0 },null,{x:1,y:0,z:0,angle:-90} ) );
+load.push(new dataModel('管线', '/models/', 'aa.obj', 'aa.mtl', '/models/', 'aa.zip', {
+    x: 0,
+    y: 100,
+    z: 0
+}));
 // load2.push( new dataModel( 'male02', '/models/', 'aa.obj', 'aa.mtl', '/models/', null, { x: 0, y: 1000, z: 0 } ) );
 export default {
     head() {
@@ -93,6 +93,7 @@ export default {
                         label: '二级 3-2'
                     }]
                 }],
+                wh:{width:1000,height:600},
                 loaddata: load,
                 loaddata2: load2,
                 defaultProps: {
@@ -104,7 +105,12 @@ export default {
         methods: {
             xx(app) {
               window._app=app;
-                console.log(app);
+              console.log(app);
+
+              app.interfaceLoadObjOrZip(load,()=>{
+                console.log('加载完成回调');
+              })
+
             },
             aa(){
               _app.interfaceVisbileSelects();
