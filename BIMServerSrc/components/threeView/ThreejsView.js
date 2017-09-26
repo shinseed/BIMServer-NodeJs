@@ -9,8 +9,8 @@ import util from './util.js';
  * @param  {type} loadData description
  * @return {type}          description
  */
-function initThree(canvas,width,height) {
-  let app=  new util.Three(canvas,width,height);
+function initThree(canvas,width,height,vue) {
+  let app=  new util.Three(canvas,width,height,vue);
       // app.updateAssets(data);
       app.resizeDisplayGL();
       app.initPostGL();
@@ -35,17 +35,42 @@ export default{
   data(){
    return {
      width:this.wh.width,
-     height:this.wh.height
+     height:this.wh.height,
+     menuEnable:false,
+     loadText:'',
+     menuType:'success'
    }
  },
    render(h){
-     return (<canvas></canvas>);
+     return (<div>
+              <div style={{position:'fixed','text-align':'left',width:this.width+'px',display:'inline-flex'}}>
+                  <el-button type={this.menuType} onClick={this.handleMenuClick}  icon="menu" size="mini"></el-button>
+                  <div v-show={this.menuEnable} >
+                    ---
+                    <el-button type="primary" icon="star-off" size="mini"></el-button>
+                    <el-button type="primary" icon="star-on" size="mini"></el-button>
+                    <el-button type="primary" icon="edit" size="mini"></el-button>
+                  </div>
+              </div>
+              <div style={{position:'fixed','text-align':'center',width:`${this.width}px`}}>
+              <span>{this.loadText}</span>
+              </div>
+
+              <canvas></canvas>
+
+            </div>);
   },
   methods:{
+    handleMenuClick(){
+      this.menuEnable=!this.menuEnable;
+      this.menuEnable?this.menuType='':this.menuType='success';
+    },
+    handProcess(text){
+      this.loadText=text;
+    }
   },
   mounted(){
-
-  let app=  initThree(this.$el,this.width,this.height);
+  let app=  initThree(this.$el.getElementsByTagName('canvas')[0],this.width,this.height,this);
     this.$emit('listerThree',app)
   }
 

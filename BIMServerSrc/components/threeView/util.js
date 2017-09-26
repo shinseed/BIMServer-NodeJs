@@ -8,8 +8,9 @@ import { Octree } from './Octree';
 
 var ZipTools = (function() {
 
-    function ZipTools(path) {
+    function ZipTools(path,vue) {
         this.zip = new JSZip();
+        this.vue=vue;
 
         this.fileLoader = new THREE.FileLoader();
         this.fileLoader.setPath(path);
@@ -34,15 +35,17 @@ var ZipTools = (function() {
         var refPercentComplete = 0;
         var percentComplete = 0;
         var output;
-        var onProgress = function(event) {
+        var onProgress = (event)=> {
             if (!event.lengthComputable) return;
 
             percentComplete = Math.round(event.loaded / event.total * 100);
             if (percentComplete > refPercentComplete) {
 
                 refPercentComplete = percentComplete;
-                output = 'Download of "' + filename + '": ' + percentComplete + '%';
-                console.log(output);
+
+                output = '正在下载  "' + filename + '": ' + percentComplete + '%';
+                this.vue.handProcess(output)
+                // console.log(output);
                 if (Boolean(callbacks.progress)) callbacks.progress(output);
 
             }
@@ -99,7 +102,8 @@ var ZipTools = (function() {
  * @class
  */
 class Three {
-    constructor(canvas, w, h) {
+    constructor(canvas, w, h,vue) {
+        this.vue=vue;
         //基础属性
         this.canvas = canvas;
         this.camera = null;
@@ -359,13 +363,16 @@ class Three {
             // just for demonstration...
 
         };
+        var reportProgress= (text)=> {
+            this.vue.handProcess(text);
+        }
         var errorWhileLoading = function() {
             // just for demonstration...
         };
         this.wwObjLoader2.registerCallbackMaterialsLoaded(materialsLoaded);
         this.wwObjLoader2.registerCallbackMeshLoaded(meshLoaded);
         this.wwObjLoader2.registerCallbackCompletedLoading(reloadAssetsProxy);
-        this.wwObjLoader2.registerCallbackProgress(this.reportProgress);
+        this.wwObjLoader2.registerCallbackProgress(reportProgress);
         this.wwObjLoader2.registerCallbackErrorWhileLoading(errorWhileLoading);
 
         // this.reloadAssets();
@@ -462,7 +469,8 @@ class Three {
         }
     }
     reportProgress(text) {
-        document.getElementById('feedback').innerHTML = text;
+        // console.log(this);
+        // document.getElementById('feedback').innerHTML = text;
     }
     reloadAssets() {
         var scope = this;
@@ -478,7 +486,7 @@ class Three {
 
             if (Boolean(obj2Load.fileZip)) {
 
-                var zipTools = new ZipTools(obj2Load.pathBase);
+                var zipTools = new ZipTools(obj2Load.pathBase,this.vue);
                 var mtlAsString = null;
 
                 var setObjAsArrayBuffer = function(data) {

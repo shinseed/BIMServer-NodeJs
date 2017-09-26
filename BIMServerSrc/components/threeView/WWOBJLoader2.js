@@ -377,7 +377,6 @@ THREE.OBJLoader2.WWOBJLoader2 = (function () {
 
 	WWOBJLoader2.prototype._receiveWorkerMessage = function ( event ) {
 		var payload = event.data;
-
 		switch ( payload.cmd ) {
 			case 'objData':
 
@@ -498,11 +497,11 @@ THREE.OBJLoader2.WWOBJLoader2 = (function () {
 						this.meshStore.push( mesh );
 
 					}
-					this._announceProgress( 'Adding mesh (' + this.counter + '):', meshName );
+					this._announceProgress( '正在添加 mesh (' + this.counter + '):', meshName );
 
 				} else {
 
-					this._announceProgress( 'Removing mesh:', meshName );
+					this._announceProgress( '正在删除 mesh:', meshName );
 
 				}
 				break;
