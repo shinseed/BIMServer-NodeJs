@@ -8,9 +8,9 @@ import { Octree } from './Octree';
 
 var ZipTools = (function() {
 
-    function ZipTools(path,vue) {
+    function ZipTools(path, vue) {
         this.zip = new JSZip();
-        this.vue=vue;
+        this.vue = vue;
 
         this.fileLoader = new THREE.FileLoader();
         this.fileLoader.setPath(path);
@@ -35,7 +35,7 @@ var ZipTools = (function() {
         var refPercentComplete = 0;
         var percentComplete = 0;
         var output;
-        var onProgress = (event)=> {
+        var onProgress = (event) => {
             if (!event.lengthComputable) return;
 
             percentComplete = Math.round(event.loaded / event.total * 100);
@@ -101,8 +101,8 @@ var ZipTools = (function() {
  * @class
  */
 class Three {
-    constructor(canvas, w, h,vue) {
-        this.vue=vue;
+    constructor(canvas, w, h, vue) {
+        this.vue = vue;
         //基础属性
         this.canvas = canvas;
         this.camera = null;
@@ -123,15 +123,15 @@ class Three {
         //鼠标点击相关属性
         this.raycaster = null;
         this.mouse = null;
-        this.selectModels=[];
-        this.visibleModels=[];
-        this.isShift=false;//是否多选
-        this.isOpacity=true;
-        this.isFollow=true;
-        this.isSelectColor=false;
+        this.selectModels = [];
+        this.visibleModels = [];
+        this.isShift = false; //是否多选
+        this.isOpacity = true;
+        this.isFollow = true;
+        this.isSelectColor = false;
         this.renderer = null;
-        this.pinObj3D=new THREE.Object3D();
-        this.pinObj3D.name='pin';
+        this.pinObj3D = new THREE.Object3D();
+        this.pinObj3D.name = 'pin';
 
         this.mouseMaterialDefault = new THREE.MeshPhongMaterial({
             color: 0xadf1a7,
@@ -147,25 +147,26 @@ class Three {
         this.wwObjLoader2 = new WWOBJLoader2();
         this.wwObjLoader2.setCrossOrigin('anonymous');
         this.octree;
+        this.boundMax=null;
         this.loadCounter = 0;
         this.objs2Load = [];
         this.allAssets = [];
 
         //loading
         this.processing = false;
-        this.loadCallback=null;
+        this.loadCallback = null;
 
         //clip
         this.clipPlanes = [
-          new THREE.Plane( new THREE.Vector3( 1, 0, 0 ), 500),
-          new THREE.Plane( new THREE.Vector3( 0, - 1, 0 ), 500 ),
-          new THREE.Plane( new THREE.Vector3( 0, 0, - 1 ), 500 )
-         ];
-         this.clipParams = {
-				clipIntersection: true,
-				planeConstant: 0,
-				showHelpers: false
-			   };
+            new THREE.Plane(new THREE.Vector3(-1, 0, 0), 500),
+            new THREE.Plane(new THREE.Vector3(0, -1, 0), 500),
+            new THREE.Plane(new THREE.Vector3(0, 0, -1), 500)
+        ];
+        this.clipParams = {
+            clipIntersection: true,
+            planeConstant: 0,
+            showHelpers: false
+        };
 
         this.init();
         // this.animate();
@@ -179,16 +180,10 @@ class Three {
         // this.scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
 
         //坐标轴辅助
-        var helper = new THREE.GridHelper(1200, 60, 0xFF4444, 0x404040);
-        this.scene.add(helper);
+        // var helper = new THREE.GridHelper(1200, 60, 0xFF4444, 0x404040);
+        // this.scene.add(helper);
 
-        var axes = new THREE.Group();
-				axes.add( new THREE.AxisHelper( 10 ) );
-				axes.add( new THREE.PlaneHelper( this.clipPlanes[ 0 ], 500, 0xff0000 ) );
-				axes.add( new THREE.PlaneHelper( this.clipPlanes[ 1 ], 500, 0x00ff00 ) );
-				axes.add( new THREE.PlaneHelper( this.clipPlanes[ 2 ], 500, 0x0000ff ) );
-				axes.visible = false;
-				this.scene.add( axes );
+
 
 
         // light
@@ -219,20 +214,20 @@ class Three {
         });
 
         //鼠标移动相关操作
-        var geometry = new THREE.CylinderGeometry( 0, 20, 100, 3 );
-        geometry.translate ( 0, -50, 0 );
-				geometry.scale( 0.1, 0.1, 0.1 );
-				geometry.rotateX( -Math.PI / 2 );
-				this.helper = new THREE.Mesh( geometry, new THREE.MeshNormalMaterial() );
-        this.helper.visible=false;
-				this.scene.add( this.helper );
+        var geometry = new THREE.CylinderGeometry(0, 20, 100, 3);
+        geometry.translate(0, -50, 0);
+        geometry.scale(0.1, 0.1, 0.1);
+        geometry.rotateX(-Math.PI / 2);
+        this.helper = new THREE.Mesh(geometry, new THREE.MeshNormalMaterial());
+        this.helper.visible = false;
+        this.scene.add(this.helper);
 
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
         // renderer
         this.renderer = new THREE.WebGLRenderer({ antialias: true, canvas: this.canvas, autoClear: true });
-        this.renderer.clippingPlanes=this.clipPlanes;
-        this.renderer.localClippingEnabled=true;
+        this.renderer.clippingPlanes = this.clipPlanes;
+        this.renderer.localClippingEnabled = true;
         // this.renderer.setPixelRatio( window.devicePixelRatio );
         this.renderer.setSize(this.width, this.height);
         // this.container = document.getElementById( 'container' );
@@ -253,8 +248,8 @@ class Three {
      */
     canvasHandleClick(event) {
         if (this.mouseupTime - this.mousedownTime > 500) { //优化视角操作不触发点击模型
-             return;
-         }
+            return;
+        }
         event.preventDefault();
         //canvas坐标-webgl坐标
         let x = (event.offsetX / this.canvas.width) * 2 - 1;
@@ -268,79 +263,84 @@ class Three {
         let intersections = this.raycaster.intersectOctreeObjects(meshesSearch);
         //
         if (intersections.length > 0) {
-            intersections.sort((a, b) => {//先排序
+            intersections.sort((a, b) => { //先排序
                 return a.distance - b.distance;
             });
-            if(this.isShift){//是否按住shift多选
-              for(let item of this.selectModels){
-                if(item==intersections[0].object){
-                  return;
-                }
-              }
-                intersections[0].object.currenMaterial=  intersections[0].object.material;
-                if(this.isSelectColor){
-                  intersections[0].object.material=this.mouseMaterialDefault;
-                }
-                else {
-                  intersections[0].object.material=intersections[0].object.material.clone();
+            if (this.isShift) { //是否按住shift多选
+                let select;
+                for (let i = 0; i < intersections.length; i++) {
+                  if (intersections[i].point.x < this.clipPlanes[0].constant &&
+                      intersections[i].point.y < this.clipPlanes[1].constant &&
+                      intersections[i].point.z < this.clipPlanes[2].constant) {
+                        select=intersections[i];
+                        for (let item of this.selectModels) {
+                            if (item == select.object) {
+                                return;
+                            }
+                        }
+                        select.object.currenMaterial = select.object.material;
+                        if (this.isSelectColor) {
+                            select.object.material = this.mouseMaterialDefault;
+                        } else {
+                            select.object.material = select.object.material.clone();
 
+                        }
+                        this.selectModels.push(select.object);
+                        if (this.isFollow) {
+                            this.animateClick(this.controls.object.position, this.controls.target, select)
+                        }
+                      }
                 }
-                this.selectModels.push(intersections[0].object);
-                if(this.isFollow){
-                  this.animateClick(this.controls.object.position,this.controls.target,intersections[0])
-                }
+            } else {
+                this.selectModels.forEach((item) => {
+                    item.material = item.currenMaterial;//还原材质
+                });
+                let select;
+                for (let i = 0; i < intersections.length; i++) { //判断是否被切面
+                    if (intersections[i].point.x < this.clipPlanes[0].constant &&
+                        intersections[i].point.y < this.clipPlanes[1].constant &&
+                        intersections[i].point.z < this.clipPlanes[2].constant) {
+                        select = intersections[i];
+                        this.selectModels = [];
+                        select.object.currenMaterial = select.object.material;
+                        if (this.isSelectColor) {
+                            select.object.material = this.mouseMaterialDefault;
+                        } else {
+                            select.object.material = select.object.material.clone();
 
-            }
-            else{
-              this.selectModels.forEach((item)=>{
-                item.material=item.currenMaterial;
-              });
-              let select;
-              for (let i = 0; i < intersections.length; i++) {//判断是否被切面
-                if(intersections[i].point.x<this.clipPlanes[0].constant&&
-                   intersections[i].point.y<this.clipPlanes[1].constant&&
-                   intersections[i].point.z<this.clipPlanes[2].constant){
-                  select=intersections[i];
-                  this.selectModels=[];
-                  select.object.currenMaterial=  select.object.material;
-                  if(this.isSelectColor){
-                    select.object.material=this.mouseMaterialDefault;
-                  }else {
-                    select.object.material=select.object.material.clone();
-
-                  }
-                  this.selectModels.push(select.object);
-                  if(this.isFollow){
-                    this.animateClick(this.controls.object.position,this.controls.target,select)
-                  }
-                  console.log(select);
-                  return ;
+                        }
+                        this.selectModels.push(select.object);
+                        if (this.isFollow) {
+                            this.animateClick(this.controls.object.position, this.controls.target, select)
+                        }
+                        console.log(select);
+                        return;
+                    }
                 }
-              }
 
             }
         } else {
-            this.selectModels.forEach((item,index)=>{
-              item.material=item.currenMaterial;
-              // console.log(index);
+            this.selectModels.forEach((item, index) => {
+                item.material = item.currenMaterial;
+                // console.log(index);
             })
-            this.selectModels=[];
+            this.selectModels = [];
 
-            if(this.isOpacity){
-              this.octree.objects.forEach((item)=>{
-                item.material.opacity=1;
-              })
+            if (this.isOpacity) {
+                this.octree.objects.forEach((item) => {
+                    item.material.opacity = 1;
+                })
             }
 
         }
         // console.log(intersections);
 
     }
-    canvasHandleMouseup(event){
+    canvasHandleMouseup(event) {
         this.mouseupTime = new Date().getTime();
         event.preventDefault();
     }
-    canvasHandleMousedown(event){
+    canvasHandleMousedown(event) {
         this.mousedownTime = new Date().getTime();
         event.preventDefault();
     }
@@ -362,24 +362,26 @@ class Three {
                 return a.distance - b.distance;
             });
             for (let i = 0; i < intersections.length; i++) {
-              if(intersections[i].point.y<this.clipPlanes[1].constant){
-                select=intersections[i];
-                var p = select.point;
-                var n = select.face.normal.clone();
-                n.transformDirection( select.object.matrixWorld );
+                if (Math.abs(intersections[i].point.x) < this.clipPlanes[0].constant&&
+                    Math.abs(intersections[i].point.y) < this.clipPlanes[1].constant&&
+                    Math.abs(intersections[i].point.z) < this.clipPlanes[2].constant) {
+                    select = intersections[i];
+                    var p = select.point;
+                    var n = select.face.normal.clone();
+                    n.transformDirection(select.object.matrixWorld);
 
-                n.multiplyScalar(10);
-                n.add(select.point);
-                this.helper.visible=true;
-                this.helper.lookAt(n);
-                this.helper.position.copy(p);
-                break;
-              }
+                    n.multiplyScalar(10);
+                    n.add(select.point);
+                    this.helper.visible = true;
+                    this.helper.lookAt(n);
+                    this.helper.position.copy(p);
+                    return;
+                }
 
             }
 
         } else {
-            this.helper.visible=false;
+            this.helper.visible = false;
         }
 
     }
@@ -407,7 +409,7 @@ class Three {
             // just for demonstration...
 
         };
-        var reportProgress= (text)=> {
+        var reportProgress = (text) => {
             this.vue.handProcess(text);
         }
         var errorWhileLoading = function() {
@@ -490,10 +492,10 @@ class Three {
                     pivot.position.set(obj2Load.pos.x, obj2Load.pos.y, obj2Load.pos.z);
                     pivot.scale.set(obj2Load.scale, obj2Load.scale, obj2Load.scale);
                     pivot.name = obj2Load.name;
-                    let radian=Math.PI/180*obj2Load.rotate.angle;
-                    let axis=new THREE.Vector3(obj2Load.rotate.x,obj2Load.rotate.y,obj2Load.rotate.z);
+                    let radian = Math.PI / 180 * obj2Load.rotate.angle;
+                    let axis = new THREE.Vector3(obj2Load.rotate.x, obj2Load.rotate.y, obj2Load.rotate.z);
 
-                    pivot.rotateOnAxis(axis,radian);
+                    pivot.rotateOnAxis(axis, radian);
                     obj2Load.pivot = pivot;
                     this.objs2Load.push(obj2Load);
                     this.allAssets[obj2Load.name] = obj2Load;
@@ -530,7 +532,7 @@ class Three {
 
             if (Boolean(obj2Load.fileZip)) {
 
-                var zipTools = new ZipTools(obj2Load.pathBase,this.vue);
+                var zipTools = new ZipTools(obj2Load.pathBase, this.vue);
                 var mtlAsString = null;
 
                 var setObjAsArrayBuffer = function(data) {
@@ -581,174 +583,229 @@ class Three {
         } else { //当所有模型加载完毕后填充 octree
             this.objs2Load.forEach((item) => {
                 item.pivot.children.forEach((child) => {
-                    child.material.clippingPlanes=this.clipPlanes;
-                    child.material.clipIntersection=this.clipParams.clipIntersection;
-                    child.material.side=THREE.DoubleSide;
+                    // child.material.clippingPlanes = this.clipPlanes;
+                    // child.material.clipIntersection = this.clipParams.clipIntersection;
+                    // child.material.side = THREE.DoubleSide;
+                    child.geometry.computeBoundingBox();
+                    child.geometry.boundingBox.applyMatrix4(child.matrixWorld)
+                    if(!this.boundMax){
+                      this.boundMax=child.geometry.boundingBox;
+                    }
+                    else{
+                      //求模型的最大边界 todo:应该有更好的方法
+                      if(this.boundMax.max.x<child.geometry.boundingBox.max.x){
+                        this.boundMax.max.x=child.geometry.boundingBox.max.x;
+                      }
+                      if(this.boundMax.max.y<child.geometry.boundingBox.max.y){
+                        this.boundMax.max.y=child.geometry.boundingBox.max.y;
+                      }
+                      if(this.boundMax.max.z<child.geometry.boundingBox.max.z){
+                        this.boundMax.max.z=child.geometry.boundingBox.max.z;
+                      }
+                      //求模型的最小边界 todo:应该有更好的方法
+                      if(this.boundMax.min.x>child.geometry.boundingBox.min.x){
+                        this.boundMax.min.x=child.geometry.boundingBox.min.x;
+                      }
+                      if(this.boundMax.min.y>child.geometry.boundingBox.min.y){
+                        this.boundMax.min.y=child.geometry.boundingBox.min.y;
+                      }
+                      if(this.boundMax.min.z>child.geometry.boundingBox.min.z){
+                        this.boundMax.min.z=child.geometry.boundingBox.min.z;
+                      }
+
+                    }
                     this.octree.add(child);
                     // this.meshs.push(child);
                 })
             })
+            let maxLength=this.boundMax.max.length();
+            let axes = new THREE.Group();
+            this.clipPlanes[0].constant=this.boundMax.max.x;
+            this.clipPlanes[1].constant=this.boundMax.max.y;
+            this.clipPlanes[2].constant=this.boundMax.max.z;
+            axes.add(new THREE.AxisHelper(10));
+            axes.add(new THREE.PlaneHelper(this.clipPlanes[0], 100, 0xff0000));
+            axes.add(new THREE.PlaneHelper(this.clipPlanes[1], 100, 0x00ff00));
+            axes.add(new THREE.PlaneHelper(this.clipPlanes[2], 100, 0x0000ff));
+            axes.visible = false;
+            this.scene.add(axes);
             //监听事件
             this.canvas.addEventListener('click', this.canvasHandleClick.bind(this), false);
             this.canvas.addEventListener('mousemove', this.canvasHandleMousemove.bind(this), false);
             this.canvas.addEventListener('mouseup', this.canvasHandleMouseup.bind(this), false);
             this.canvas.addEventListener('mousedown', this.canvasHandleMousedown.bind(this), false);
-            window.addEventListener('keydown',this.canvasHadnleKeydown.bind(this),false);
-            window.addEventListener('keyup',this.canvasHadnleKeyup.bind(this),false);
+            window.addEventListener('keydown', this.canvasHadnleKeydown.bind(this), false);
+            window.addEventListener('keyup', this.canvasHadnleKeyup.bind(this), false);
             scope.processing = false;
             //执行回调
             this.loadCallback()
         }
     }
-    canvasHadnleKeydown(event){
-      var e = event || window.event || arguments.callee.caller.arguments[0];
-            if(e && e.keyCode==16){ // 按 shift
-                this.isShift=true;
-            }
-    }
-    canvasHadnleKeyup(event){
-      var e = event || window.event || arguments.callee.caller.arguments[0];
-            if(e && e.keyCode==16){ // 按 shift
-              this.isShift=false
-      }
-    }
-    animateClick(oldP, oldT,intersections){
-      let boundCenter;
-      if(intersections.object.name=='pin'){
-        boundCenter=intersections.object.position.clone();
-      }
-      else{
-         boundCenter=intersections.object.geometry.boundingSphere.center.clone();
-      }
-      let sobj=this.selectModels[this.selectModels.length-1];
-      let boundingSphere=sobj.geometry.boundingSphere;
-      this.objs2Load.forEach((item)=>{
-        if(item.name==sobj.parent.name){
-          item.pivot.children.forEach((child)=>{
-            if(child.uuid!=sobj.uuid){
-              if(this.isOpacity){
-                child.material.transparent=true;
-                child.material.opacity=0.3;
-              }
-            }
-            else {
-              let radian=Math.PI/180*item.rotate.angle;
-              let axis=new THREE.Vector3(item.rotate.x,item.rotate.y,item.rotate.z);
-              boundCenter.applyAxisAngle(axis,radian);
-              boundCenter.x+=item.pos.x;
-              boundCenter.y+=item.pos.y;
-              boundCenter.z+=item.pos.z;
-              if(this.isOpacity){
-                child.material.transparent=true;
-                child.material.opacity=1;
-              }
-            }
-          })
-
+    canvasHadnleKeydown(event) {
+        var e = event || window.event || arguments.callee.caller.arguments[0];
+        if (e && e.keyCode == 16) { // 按 shift
+            this.isShift = true;
         }
-
-      })
-      this.selectModels.forEach((item)=>{
-        item.material.transparent=false;
-      })
-      console.log(this.selectModels);
-      var r = boundingSphere.radius;
-      var offset = r / Math.tan(Math.PI / 180.0 * this.controls.object.fov * 0.5);
-      var vector = new THREE.Vector3(0, 0, 1);
-      var dir = vector.applyQuaternion(this.controls.object.quaternion);
-      var newPos = new THREE.Vector3();
-      dir.multiplyScalar(offset * 1.1);
-      newPos.addVectors(boundCenter, dir);
-      var that = this;
-           var tween = new TWEEN.Tween(oldP)
-               .to({
-                   x: newPos.x,
-                   y: newPos.y,
-                   z: newPos.z
-               }, 1000)
-               /**
-                * Circular 间接的动画
-                * Elastic  弹性动画
-                * Exponential 指数动画
-                * Back  后退动画
-                * Bounce 抖动
-                * Sinusoidal 正弦曲线动画
-                * Quintic 5次方动画
-                * Quartic 4次方
-                * Cubic   立方体动画
-                * Quadratic 2次方动画*/
-               .easing(TWEEN.Easing.Quadratic.InOut)
-               .onUpdate(() => {
-
-                   that.controls.target = new THREE.Vector3(boundCenter.x, boundCenter.y, boundCenter.z);
-
-               });
-
-           var tween1 = new TWEEN.Tween(oldT)
-               .to({
-                   x: newPos.x,
-                   y: newPos.y,
-                   z: newPos.z
-               }, 10)
-               .easing(TWEEN.Easing.Quadratic.InOut)
-               .onUpdate(() => {
-                   that.controls.object.position.set(newPos.x, newPos.y, newPos.z);
-
-               });
-           tween.chain(tween1);
-           tween.start();
     }
-    interfaceLoadObjOrZip(assets,loadCallback){
-      if(!this.processing){
-        this.updateAssets(assets)
-        this.reloadAssets()
-        this.loadCallback=loadCallback;
-      }
+    canvasHadnleKeyup(event) {
+        var e = event || window.event || arguments.callee.caller.arguments[0];
+        if (e && e.keyCode == 16) { // 按 shift
+            this.isShift = false
+        }
     }
-    interfaceDrawPin(arrs){
-      this.objs2Load.forEach((item)=>{
-          item.pivot.children.forEach((child)=>{
-              let center=child.geometry.boundingSphere.center.clone();
-              let radian=Math.PI/180*item.rotate.angle;
-              let axis=new THREE.Vector3(item.rotate.x,item.rotate.y,item.rotate.z);
-              center.applyAxisAngle(axis,radian);
-              center.x+=item.pos.x;
-              center.y+=item.pos.y;
-              center.z+=item.pos.z;
+    animateClick(oldP, oldT, intersections) {
+        let boundCenter;
+        if (intersections.object.name == 'pin') {
+            boundCenter = intersections.object.position.clone();
+        } else {
+            boundCenter = intersections.object.geometry.boundingSphere.center.clone();
+        }
+        let sobj = this.selectModels[this.selectModels.length - 1];
+        let boundingSphere = sobj.geometry.boundingSphere;
+        this.objs2Load.forEach((item) => {
+            if (item.name == sobj.parent.name) {
+                item.pivot.children.forEach((child) => {
+                    if (child.uuid != sobj.uuid) {
+                        if (this.isOpacity) {
+                            child.material.transparent = true;
+                            child.material.opacity = 0.3;
+                        }
+                    } else {
+                        let radian = Math.PI / 180 * item.rotate.angle;
+                        let axis = new THREE.Vector3(item.rotate.x, item.rotate.y, item.rotate.z);
+                        boundCenter.applyAxisAngle(axis, radian);
+                        boundCenter.x += item.pos.x;
+                        boundCenter.y += item.pos.y;
+                        boundCenter.z += item.pos.z;
+                        if (this.isOpacity) {
+                            child.material.transparent = true;
+                            child.material.opacity = 1;
+                        }
+                    }
+                })
 
-              let geometry = new THREE.CylinderGeometry( 0, 10, 100, 12 );
-  				        geometry.rotateX( Math.PI / 2 );
+            }
 
-              // geometry.translate ( 0, -50, 0 );
-              geometry.scale( 0.2, 0.2, 0.2 );
-              // geometry.rotateX( -Math.PI / 2 );
-              let pin = new THREE.Mesh( geometry, new THREE.MeshNormalMaterial() );
-              pin.name='pin';
-              pin.lookAt(this.controls.object.position);
-              pin.position.set(center.x,center.y,center.z);
-              this.pinObj3D.add(pin);
+        })
+        this.selectModels.forEach((item) => {
+            item.material.transparent = false;
+        })
+        console.log(this.selectModels);
+        var r = boundingSphere.radius;
+        var offset = r / Math.tan(Math.PI / 180.0 * this.controls.object.fov * 0.5);
+        var vector = new THREE.Vector3(0, 0, 1);
+        var dir = vector.applyQuaternion(this.controls.object.quaternion);
+        var newPos = new THREE.Vector3();
+        dir.multiplyScalar(offset * 1.1);
+        newPos.addVectors(boundCenter, dir);
+        var that = this;
+        var tween = new TWEEN.Tween(oldP)
+            .to({
+                x: newPos.x,
+                y: newPos.y,
+                z: newPos.z
+            }, 1000)
+            /**
+             * Circular 间接的动画
+             * Elastic  弹性动画
+             * Exponential 指数动画
+             * Back  后退动画
+             * Bounce 抖动
+             * Sinusoidal 正弦曲线动画
+             * Quintic 5次方动画
+             * Quartic 4次方
+             * Cubic   立方体动画
+             * Quadratic 2次方动画*/
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .onUpdate(() => {
 
-              this.octree.add(pin);
+                that.controls.target = new THREE.Vector3(boundCenter.x, boundCenter.y, boundCenter.z);
+
+            });
+
+        var tween1 = new TWEEN.Tween(oldT)
+            .to({
+                x: newPos.x,
+                y: newPos.y,
+                z: newPos.z
+            }, 10)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .onUpdate(() => {
+                that.controls.object.position.set(newPos.x, newPos.y, newPos.z);
+
+            });
+        tween.chain(tween1);
+        tween.start();
+    }
+    interfaceLoadObjOrZip(assets, loadCallback) {
+        if (!this.processing) {
+            this.updateAssets(assets)
+            this.reloadAssets()
+            this.loadCallback = loadCallback;
+        }
+    }
+    interfaceDrawPin(arrs) {
+        this.objs2Load.forEach((item) => {
+            item.pivot.children.forEach((child) => {
+                let center = child.geometry.boundingSphere.center.clone();
+                let radian = Math.PI / 180 * item.rotate.angle;
+                let axis = new THREE.Vector3(item.rotate.x, item.rotate.y, item.rotate.z);
+                center.applyAxisAngle(axis, radian);
+                center.x += item.pos.x;
+                center.y += item.pos.y;
+                center.z += item.pos.z;
+
+                let geometry = new THREE.CylinderGeometry(0, 10, 100, 12);
+                geometry.rotateX(Math.PI / 2);
+
+                // geometry.translate ( 0, -50, 0 );
+                geometry.scale(0.2, 0.2, 0.2);
+                // geometry.rotateX( -Math.PI / 2 );
+                let pin = new THREE.Mesh(geometry, new THREE.MeshNormalMaterial());
+                pin.name = 'pin';
+                pin.lookAt(this.controls.object.position);
+                pin.position.set(center.x, center.y, center.z);
+                this.pinObj3D.add(pin);
+
+                this.octree.add(pin);
 
 
-          })
+            })
             this.scene.add(this.pinObj3D);
-      })
+        })
     }
-    interfaceVisbileSelects(){
-      this.selectModels.forEach((item)=>{
-        item.visible=false;
-        this.visibleModels.push(item);
-      })
+    interfaceVisbileSelects() {
+        this.selectModels.forEach((item) => {
+            item.visible = false;
+            this.visibleModels.push(item);
+        })
     }
-    interfaceShowModels(){
-      this.visibleModels.forEach((item)=>{
-        item.visible=true;
-      })
+    interfaceShowModels() {
+        this.visibleModels.forEach((item) => {
+            item.visible = true;
+        })
     }
-    interfaceEnableFollow(){
-      this.isFollow=!this.isFollow;
-      this.isSelectColor=!this.isSelectColor;
+    interfaceEnableFollow() {
+        this.isFollow = !this.isFollow;
+        this.isSelectColor = !this.isSelectColor;
+    }
+    interfaceClippingX(val){
+      let result;
+      let x=(this.boundMax.max.x-this.boundMax.min.x)/100;
+      result=this.boundMax.max.x-x*val;
+      this.clipPlanes[0].constant=result;
+    }
+    interfaceClippingY(val){
+      let result;
+      let y=(this.boundMax.max.y-this.boundMax.min.y)/100;
+      result=this.boundMax.max.y-y*val;
+      this.clipPlanes[1].constant=result;
+    }
+    interfaceClippingZ(val){
+      let result;
+      let z=(this.boundMax.max.z-this.boundMax.min.z)/100;
+      result=this.boundMax.max.z-z*val;
+      this.clipPlanes[2].constant=result;
     }
     render() {
         if (!this.renderer.autoClear) this.renderer.clear();
@@ -758,8 +815,8 @@ class Three {
         // this.CameraHelper.update();
         TWEEN.update();
 
-        this.pinObj3D.children.forEach((item)=>{
-          item.lookAt(this.controls.object.position);
+        this.pinObj3D.children.forEach((item) => {
+            item.lookAt(this.controls.object.position);
         })
 
         this.octree.update();

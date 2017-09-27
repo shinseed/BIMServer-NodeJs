@@ -39,6 +39,7 @@ export default{
      height:this.wh.height,
      menuEnable:false,
      loadText:'',
+     sliderValue:[4,7],
      menuType:'success',
      follow:{
        btnCss:'primary',
@@ -50,7 +51,7 @@ export default{
  },
    render(h){
      return (
-       <Toolbar width={this.width} loadText={this.loadText}/>
+       <Toolbar width={this.width} slider={this.sliderValue} loadText={this.loadText}/>
       )
   },
   methods:{
@@ -67,8 +68,16 @@ export default{
       this.app.controls.reset();
     },
     EnableFollow(){
-
       this.app.interfaceEnableFollow();
+    },
+    CheckClippingX(val){
+      this.app.interfaceClippingX(val)
+    },
+    CheckClippingY(val){
+      this.app.interfaceClippingY(val)
+    },
+    CheckClippingZ(val){
+      this.app.interfaceClippingZ(val)
     }
 
   },

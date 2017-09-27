@@ -11,9 +11,28 @@
             <el-button type="primary" @click="VisibleSelectModels" icon="star-on" size="mini">影藏选中模型</el-button>
             <el-button type="primary" @click="ShowSelectModels" icon="star-off" size="mini">显示已影藏模型</el-button>
             <el-button :type="follow.btnCss" @click="EnableFollow" :icon="follow.iconCss" size="mini">镜头是否跟随</el-button>
+            <el-button :type="clipping.btnCss" @click="EnableClipping" :icon="clipping.iconCss" size="mini">剖切</el-button>
         </div>
+
         <div :style="processContainer">
             <span>{{loadText}}</span>
+        </div>
+        <div :style="sliderContainer" v-show='clipping.isClipping'>
+            <div>
+                <span>X</span>
+                <el-slider  @change='CheckClippingX' v-model="valueX" :min='1' :max='100' >
+                </el-slider>
+            </div>
+            <div>
+                <span>Y</span>
+                <el-slider  @change='CheckClippingY' v-model="valueY" :min='1' :max='100' >
+                </el-slider>
+            </div>
+            <div>
+                <span>Z</span>
+                  <el-slider  @change='CheckClippingZ' v-model="valueZ" :min='1' :max='100' >
+                </el-slider>
+            </div>
         </div>
     </div>
     <canvas></canvas>
@@ -28,6 +47,7 @@ export default {
     props: {
         width: Number,
         loadText: String
+            // slider:Object
     },
     methods: {
         handleMenuClick(e) {
@@ -57,6 +77,27 @@ export default {
                     this.follow.btnCss = '';
                 }
                 this.$parent.EnableFollow(); //不ob Three 实体
+            },
+            EnableClipping(e) {
+                e.target.blur(); //可能点中icon
+                e.target.parentElement.blur();
+                this.clipping.isClipping = !this.clipping.isClipping;
+                if (this.clipping.isClipping) {
+                    this.clipping.iconCss = 'circle-check';
+                    this.clipping.btnCss = 'primary';
+                } else {
+                    this.clipping.iconCss = 'circle-close';
+                    this.clipping.btnCss = '';
+                }
+            },
+            CheckClippingX(val){
+              this.$parent.CheckClippingX(val);
+            },
+            CheckClippingY(val){
+              this.$parent.CheckClippingY(val);
+            },
+            CheckClippingZ(val){
+              this.$parent.CheckClippingZ(val);
             }
     },
     data() {
@@ -67,18 +108,33 @@ export default {
                 width: this.width + 'px',
                 display: 'inline-flex'
             },
-            processContainer:{
+            processContainer: {
                 position: 'fixed',
                 'text-align': 'center',
-                    width: this.width + 'px',
+                width: this.width + 'px',
+            },
+            sliderContainer: {
+                position: 'fixed',
+                'text-align': 'center',
+                width: this.width / 4 + 'px',
+                'margin-top': '24px',
+                'margin-left': '10px'
             },
             follow: {
                 btnCss: 'primary',
                 iconCss: 'circle-check',
                 isFollow: true
             },
+            clipping: {
+                btnCss: '',
+                iconCss: 'circle-close',
+                isClipping: false
+            },
             menuType: 'success',
-            menuEnable: false
+            menuEnable: false,
+            valueX:1,
+            valueY:1,
+            valueZ:1
         }
     }
 }
