@@ -56,8 +56,7 @@ var ZipTools = (function() {
             console.error(output);
             callbacks.error(output);
         };
-
-        console.log('Starting download: ' + filename);
+        this.vue.handProcess(`开始下载${filename}`)
         this.fileLoader.load(filename, onSuccess, onProgress, onError);
     };
 
@@ -125,8 +124,10 @@ class Three {
         this.raycaster = null;
         this.mouse = null;
         this.selectModels=[];
+        this.visibleModels=[];
         this.isShift=false;//是否多选
         this.isOpacity=true;
+        this.isFollow=true;
         this.isSelectColor=false;
         this.renderer = null;
         this.pinObj3D=new THREE.Object3D();
@@ -154,6 +155,17 @@ class Three {
         this.processing = false;
         this.loadCallback=null;
 
+        //clip
+        this.clipPlanes = [
+          new THREE.Plane( new THREE.Vector3( 1, 0, 0 ), 500),
+          new THREE.Plane( new THREE.Vector3( 0, - 1, 0 ), 500 ),
+          new THREE.Plane( new THREE.Vector3( 0, 0, - 1 ), 500 )
+         ];
+         this.clipParams = {
+				clipIntersection: true,
+				planeConstant: 0,
+				showHelpers: false
+			   };
 
         this.init();
         // this.animate();
@@ -169,10 +181,15 @@ class Three {
         //坐标轴辅助
         var helper = new THREE.GridHelper(1200, 60, 0xFF4444, 0x404040);
         this.scene.add(helper);
-        var axes = new THREE.AxisHelper(500);
-        this.scene.add(axes);
-        //  this.CameraHelper=new THREE.CameraHelper(this.camera);
-        // this.scene.add(this.CameraHelper);
+
+        var axes = new THREE.Group();
+				axes.add( new THREE.AxisHelper( 10 ) );
+				axes.add( new THREE.PlaneHelper( this.clipPlanes[ 0 ], 500, 0xff0000 ) );
+				axes.add( new THREE.PlaneHelper( this.clipPlanes[ 1 ], 500, 0x00ff00 ) );
+				axes.add( new THREE.PlaneHelper( this.clipPlanes[ 2 ], 500, 0x0000ff ) );
+				axes.visible = false;
+				this.scene.add( axes );
+
 
         // light
         var light = new THREE.DirectionalLight(0xffffff);
@@ -204,7 +221,7 @@ class Three {
         //鼠标移动相关操作
         var geometry = new THREE.CylinderGeometry( 0, 20, 100, 3 );
         geometry.translate ( 0, -50, 0 );
-				geometry.scale( 0.2, 0.2, 0.2 );
+				geometry.scale( 0.1, 0.1, 0.1 );
 				geometry.rotateX( -Math.PI / 2 );
 				this.helper = new THREE.Mesh( geometry, new THREE.MeshNormalMaterial() );
         this.helper.visible=false;
@@ -214,6 +231,8 @@ class Three {
         this.mouse = new THREE.Vector2();
         // renderer
         this.renderer = new THREE.WebGLRenderer({ antialias: true, canvas: this.canvas, autoClear: true });
+        this.renderer.clippingPlanes=this.clipPlanes;
+        this.renderer.localClippingEnabled=true;
         // this.renderer.setPixelRatio( window.devicePixelRatio );
         this.renderer.setSize(this.width, this.height);
         // this.container = document.getElementById( 'container' );
@@ -227,7 +246,7 @@ class Three {
 
     }
     /**
-     * canvasHandleClick - 模型点击事件
+     * canvasHandleClick - 模型点击事件 todo:if 太多需要优化
      *
      * @param  {type} event description
      * @return {type}       description
@@ -249,11 +268,10 @@ class Three {
         let intersections = this.raycaster.intersectOctreeObjects(meshesSearch);
         //
         if (intersections.length > 0) {
-            intersections.sort((a, b) => {
+            intersections.sort((a, b) => {//先排序
                 return a.distance - b.distance;
             });
-          console.log(intersections[0]);
-            if(this.isShift){
+            if(this.isShift){//是否按住shift多选
               for(let item of this.selectModels){
                 if(item==intersections[0].object){
                   return;
@@ -268,22 +286,38 @@ class Three {
 
                 }
                 this.selectModels.push(intersections[0].object);
-                this.animateClick(this.controls.object.position,this.controls.target,intersections[0])
+                if(this.isFollow){
+                  this.animateClick(this.controls.object.position,this.controls.target,intersections[0])
+                }
 
-            }else{
+            }
+            else{
               this.selectModels.forEach((item)=>{
                 item.material=item.currenMaterial;
               });
-              this.selectModels=[];
-              intersections[0].object.currenMaterial=  intersections[0].object.material;
-              if(this.isSelectColor){
-                intersections[0].object.material=this.mouseMaterialDefault;
-              }else {
-                intersections[0].object.material=intersections[0].object.material.clone();
+              let select;
+              for (let i = 0; i < intersections.length; i++) {//判断是否被切面
+                if(intersections[i].point.x<this.clipPlanes[0].constant&&
+                   intersections[i].point.y<this.clipPlanes[1].constant&&
+                   intersections[i].point.z<this.clipPlanes[2].constant){
+                  select=intersections[i];
+                  this.selectModels=[];
+                  select.object.currenMaterial=  select.object.material;
+                  if(this.isSelectColor){
+                    select.object.material=this.mouseMaterialDefault;
+                  }else {
+                    select.object.material=select.object.material.clone();
 
+                  }
+                  this.selectModels.push(select.object);
+                  if(this.isFollow){
+                    this.animateClick(this.controls.object.position,this.controls.target,select)
+                  }
+                  console.log(select);
+                  return ;
+                }
               }
-              this.selectModels.push(intersections[0].object);
-              this.animateClick(this.controls.object.position,this.controls.target,intersections[0])
+
             }
         } else {
             this.selectModels.forEach((item,index)=>{
@@ -323,17 +357,27 @@ class Three {
         let intersections = this.raycaster.intersectOctreeObjects(meshesSearch);
 
         if (intersections.length > 0) {
+            let select;
             intersections.sort((a, b) => {
                 return a.distance - b.distance;
             });
-            var p = intersections[0].point;
-            var n = intersections[0].face.normal.clone();
-            n.transformDirection( intersections[0].object.matrixWorld );
-            n.multiplyScalar(10);
-            n.add(intersections[0].point);
-            this.helper.visible=true;
-            this.helper.lookAt(n);
-            this.helper.position.copy(p);
+            for (let i = 0; i < intersections.length; i++) {
+              if(intersections[i].point.y<this.clipPlanes[1].constant){
+                select=intersections[i];
+                var p = select.point;
+                var n = select.face.normal.clone();
+                n.transformDirection( select.object.matrixWorld );
+
+                n.multiplyScalar(10);
+                n.add(select.point);
+                this.helper.visible=true;
+                this.helper.lookAt(n);
+                this.helper.position.copy(p);
+                break;
+              }
+
+            }
+
         } else {
             this.helper.visible=false;
         }
@@ -537,6 +581,9 @@ class Three {
         } else { //当所有模型加载完毕后填充 octree
             this.objs2Load.forEach((item) => {
                 item.pivot.children.forEach((child) => {
+                    child.material.clippingPlanes=this.clipPlanes;
+                    child.material.clipIntersection=this.clipParams.clipIntersection;
+                    child.material.side=THREE.DoubleSide;
                     this.octree.add(child);
                     // this.meshs.push(child);
                 })
@@ -581,7 +628,7 @@ class Three {
             if(child.uuid!=sobj.uuid){
               if(this.isOpacity){
                 child.material.transparent=true;
-                child.material.opacity=0.1;
+                child.material.opacity=0.3;
               }
             }
             else {
@@ -691,7 +738,17 @@ class Three {
     interfaceVisbileSelects(){
       this.selectModels.forEach((item)=>{
         item.visible=false;
+        this.visibleModels.push(item);
       })
+    }
+    interfaceShowModels(){
+      this.visibleModels.forEach((item)=>{
+        item.visible=true;
+      })
+    }
+    interfaceEnableFollow(){
+      this.isFollow=!this.isFollow;
+      this.isSelectColor=!this.isSelectColor;
     }
     render() {
         if (!this.renderer.autoClear) this.renderer.clear();

@@ -43,11 +43,11 @@ let _app;
 var load = [];
 var load2 = [];
 load.push( new dataModel( '车站', '/models/', 'xx.obj', 'xx.mtl', '/models/', 'xx.zip', { x: 0, y: 0, z: 0 },null,{x:1,y:0,z:0,angle:-90} ) );
-load.push(new dataModel('管线', '/models/', 'aa.obj', 'aa.mtl', '/models/', 'aa.zip', {
-    x: 0,
-    y: 100,
-    z: 0
-}));
+// load.push(new dataModel('管线', '/models/', 'aa.obj', 'aa.mtl', '/models/', 'aa.zip', {
+//     x: 0,
+//     y: 100,
+//     z: 0
+// }));
 // load2.push( new dataModel( 'male02', '/models/', 'aa.obj', 'aa.mtl', '/models/', null, { x: 0, y: 1000, z: 0 } ) );
 export default {
     head() {
