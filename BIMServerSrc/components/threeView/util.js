@@ -148,6 +148,7 @@ class Three {
         this.wwObjLoader2.setCrossOrigin('anonymous');
         this.octree;
         this.boundMax=null;
+        this.boundNow=null;
         this.loadCounter = 0;
         this.objs2Load = [];
         this.allAssets = [];
@@ -158,12 +159,12 @@ class Three {
 
         //clip
         this.clipPlanes = [
-            new THREE.Plane(new THREE.Vector3(-1, 0, 0), 500),
-            new THREE.Plane(new THREE.Vector3(0, -1, 0), 500),
-            new THREE.Plane(new THREE.Vector3(0, 0, -1), 500)
+            new THREE.Plane(new THREE.Vector3(1, 0, 0), 0),
+            new THREE.Plane(new THREE.Vector3(0, -1, 0), 0),
+            new THREE.Plane(new THREE.Vector3(0, 0, -1), 0)
         ];
         this.clipParams = {
-            clipIntersection: true,
+            clipIntersection: false,
             planeConstant: 0,
             showHelpers: false
         };
@@ -176,12 +177,12 @@ class Three {
         this.resetCamera();
         // world
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0xcccccc);
+        this.scene.background = new THREE.Color(0xffffff);
         // this.scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
 
         //坐标轴辅助
-        // var helper = new THREE.GridHelper(1200, 60, 0xFF4444, 0x404040);
-        // this.scene.add(helper);
+        var helper = new THREE.GridHelper(1200, 60, 0xFF4444, 0x404040);
+        this.scene.add(helper);
 
 
 
@@ -226,10 +227,10 @@ class Three {
         this.mouse = new THREE.Vector2();
         // renderer
         this.renderer = new THREE.WebGLRenderer({ antialias: true, canvas: this.canvas, autoClear: true });
-        this.renderer.clippingPlanes = this.clipPlanes;
-        this.renderer.localClippingEnabled = true;
+        // this.renderer.clippingPlanes = this.clipPlanes;
         // this.renderer.setPixelRatio( window.devicePixelRatio );
         this.renderer.setSize(this.width, this.height);
+        this.renderer.localClippingEnabled = true;
         // this.container = document.getElementById( 'container' );
         // this.container.appendChild( renderer.domElement );
         // this.container.appendChild( stats.dom );
@@ -237,6 +238,26 @@ class Three {
         //
         this.controls = new THREE.TrackballControls(this.camera, this.canvas);
 
+        // var group = new THREE.Object3D();
+        //
+				// for ( var i = 1; i < 25; i ++ ) {
+        //
+				// 	var geometry = new THREE.SphereBufferGeometry( i / 2, 48, 24 );
+        //
+				// 	var material = new THREE.MeshPhongMaterial( {
+        //
+				// 		color: new THREE.Color( Math.sin( i * 0.5 ) * 0.5 + 0.5, Math.cos( i * 1.5 ) * 0.5 + 0.5, Math.sin( i * 4.5 + 0 ) * 0.5 + 0.5 ),
+				// 		side: THREE.DoubleSide,
+				// 		clippingPlanes: this.clipPlanes,
+				// 		clipIntersection: this.clipParams.clipIntersection
+        //
+				// 	} );
+        //
+				// 	group.add( new THREE.Mesh( geometry, material ) );
+        //
+				// }
+        //
+				// this.scene.add( group );
         // this.render();
 
     }
@@ -269,9 +290,7 @@ class Three {
             if (this.isShift) { //是否按住shift多选
                 let select;
                 for (let i = 0; i < intersections.length; i++) {
-                  if (intersections[i].point.x < this.clipPlanes[0].constant &&
-                      intersections[i].point.y < this.clipPlanes[1].constant &&
-                      intersections[i].point.z < this.clipPlanes[2].constant) {
+                  if (this.boundNow.containsPoint(intersections[i].point)) {
                         select=intersections[i];
                         for (let item of this.selectModels) {
                             if (item == select.object) {
@@ -282,8 +301,12 @@ class Three {
                         if (this.isSelectColor) {
                             select.object.material = this.mouseMaterialDefault;
                         } else {
+                          if(select.object.material instanceof Array){
+                            select.object.material = select.object.material
+                          }
+                          else{
                             select.object.material = select.object.material.clone();
-
+                          }
                         }
                         this.selectModels.push(select.object);
                         if (this.isFollow) {
@@ -297,17 +320,19 @@ class Three {
                 });
                 let select;
                 for (let i = 0; i < intersections.length; i++) { //判断是否被切面
-                    if (intersections[i].point.x < this.clipPlanes[0].constant &&
-                        intersections[i].point.y < this.clipPlanes[1].constant &&
-                        intersections[i].point.z < this.clipPlanes[2].constant) {
+                    if (this.boundNow.containsPoint(intersections[i].point)) {
                         select = intersections[i];
                         this.selectModels = [];
                         select.object.currenMaterial = select.object.material;
                         if (this.isSelectColor) {
                             select.object.material = this.mouseMaterialDefault;
                         } else {
-                            select.object.material = select.object.material.clone();
-
+                            if(select.object.material instanceof Array){
+                              select.object.material = select.object.material
+                            }
+                            else{
+                              select.object.material = select.object.material.clone();
+                            }
                         }
                         this.selectModels.push(select.object);
                         if (this.isFollow) {
@@ -362,11 +387,9 @@ class Three {
                 return a.distance - b.distance;
             });
             for (let i = 0; i < intersections.length; i++) {
-                if (Math.abs(intersections[i].point.x) < this.clipPlanes[0].constant&&
-                    Math.abs(intersections[i].point.y) < this.clipPlanes[1].constant&&
-                    Math.abs(intersections[i].point.z) < this.clipPlanes[2].constant) {
+                let p = intersections[i].point.clone();
+                if (this.boundNow.containsPoint(p)) {
                     select = intersections[i];
-                    var p = select.point;
                     var n = select.face.normal.clone();
                     n.transformDirection(select.object.matrixWorld);
 
@@ -583,34 +606,46 @@ class Three {
         } else { //当所有模型加载完毕后填充 octree
             this.objs2Load.forEach((item) => {
                 item.pivot.children.forEach((child) => {
-                    // child.material.clippingPlanes = this.clipPlanes;
-                    // child.material.clipIntersection = this.clipParams.clipIntersection;
-                    // child.material.side = THREE.DoubleSide;
+                    if(child.material instanceof Array){
+                      child.material.forEach((materialChild)=>{
+                        materialChild.clippingPlanes=this.clipPlanes;
+                        materialChild.clipIntersection=this.clipParams.clipIntersection;
+                        materialChild.side=THREE.DoubleSide;
+                      })
+                    }
+                    else {
+                      child.material.clippingPlanes = this.clipPlanes;
+                      child.material.clipIntersection = this.clipParams.clipIntersection;
+                      child.material.side = THREE.DoubleSide;
+                    }
                     child.geometry.computeBoundingBox();
-                    child.geometry.boundingBox.applyMatrix4(child.matrixWorld)
+                    let box=child.geometry.boundingBox.clone();
+                    // console.log(box,11111);
+                    box.applyMatrix4(child.matrixWorld)
+                      // console.log(box,2222);
                     if(!this.boundMax){
-                      this.boundMax=child.geometry.boundingBox;
+                      this.boundMax=box;
                     }
                     else{
                       //求模型的最大边界 todo:应该有更好的方法
-                      if(this.boundMax.max.x<child.geometry.boundingBox.max.x){
-                        this.boundMax.max.x=child.geometry.boundingBox.max.x;
+                      if(this.boundMax.max.x<box.max.x){
+                        this.boundMax.max.x=box.max.x;
                       }
-                      if(this.boundMax.max.y<child.geometry.boundingBox.max.y){
-                        this.boundMax.max.y=child.geometry.boundingBox.max.y;
+                      if(this.boundMax.max.y<box.max.y){
+                        this.boundMax.max.y=box.max.y;
                       }
-                      if(this.boundMax.max.z<child.geometry.boundingBox.max.z){
-                        this.boundMax.max.z=child.geometry.boundingBox.max.z;
+                      if(this.boundMax.max.z<box.max.z){
+                        this.boundMax.max.z=box.max.z;
                       }
                       //求模型的最小边界 todo:应该有更好的方法
-                      if(this.boundMax.min.x>child.geometry.boundingBox.min.x){
-                        this.boundMax.min.x=child.geometry.boundingBox.min.x;
+                      if(this.boundMax.min.x>box.min.x){
+                        this.boundMax.min.x=box.min.x;
                       }
-                      if(this.boundMax.min.y>child.geometry.boundingBox.min.y){
-                        this.boundMax.min.y=child.geometry.boundingBox.min.y;
+                      if(this.boundMax.min.y>box.min.y){
+                        this.boundMax.min.y=box.min.y;
                       }
-                      if(this.boundMax.min.z>child.geometry.boundingBox.min.z){
-                        this.boundMax.min.z=child.geometry.boundingBox.min.z;
+                      if(this.boundMax.min.z>box.min.z){
+                        this.boundMax.min.z=box.min.z;
                       }
 
                     }
@@ -618,16 +653,17 @@ class Three {
                     // this.meshs.push(child);
                 })
             })
-            let maxLength=this.boundMax.max.length();
+
             let axes = new THREE.Group();
             this.clipPlanes[0].constant=this.boundMax.max.x;
             this.clipPlanes[1].constant=this.boundMax.max.y;
             this.clipPlanes[2].constant=this.boundMax.max.z;
+            this.boundNow=this.boundMax.clone();
             axes.add(new THREE.AxisHelper(10));
-            axes.add(new THREE.PlaneHelper(this.clipPlanes[0], 100, 0xff0000));
-            axes.add(new THREE.PlaneHelper(this.clipPlanes[1], 100, 0x00ff00));
-            axes.add(new THREE.PlaneHelper(this.clipPlanes[2], 100, 0x0000ff));
-            axes.visible = false;
+            axes.add(new THREE.PlaneHelper(this.clipPlanes[0], 30, 0xff0000));
+            axes.add(new THREE.PlaneHelper(this.clipPlanes[1], 30, 0x00ff00));
+            axes.add(new THREE.PlaneHelper(this.clipPlanes[2], 30, 0x0000ff));
+            axes.visible = true;
             this.scene.add(axes);
             //监听事件
             this.canvas.addEventListener('click', this.canvasHandleClick.bind(this), false);
@@ -794,18 +830,22 @@ class Three {
       let x=(this.boundMax.max.x-this.boundMax.min.x)/100;
       result=this.boundMax.max.x-x*val;
       this.clipPlanes[0].constant=result;
+      this.boundNow.min.x=-result;
+      console.log(result,this.boundMax);
     }
     interfaceClippingY(val){
       let result;
       let y=(this.boundMax.max.y-this.boundMax.min.y)/100;
       result=this.boundMax.max.y-y*val;
       this.clipPlanes[1].constant=result;
+      this.boundNow.max.y=result;
     }
     interfaceClippingZ(val){
       let result;
       let z=(this.boundMax.max.z-this.boundMax.min.z)/100;
       result=this.boundMax.max.z-z*val;
       this.clipPlanes[2].constant=result;
+      this.boundNow.max.z=result;
     }
     render() {
         if (!this.renderer.autoClear) this.renderer.clear();
