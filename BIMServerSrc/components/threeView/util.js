@@ -3,8 +3,6 @@ var TWEEN = require('tween.js');
 import { TrackballControls } from './TrackballControls';
 import { WWOBJLoader2 } from './WWOBJLoader2';
 import { Octree } from './Octree';
-// var dat=require('dat.gui');
-// console.log(dat);
 
 var ZipTools = (function() {
 
@@ -170,6 +168,9 @@ class Three {
         };
 
         this.init();
+
+        //事件监听
+        // window.addEventListener('resize',this.resizeDisplayGL.bind(this),false)
         // this.animate();
     }
     init() {
@@ -238,27 +239,6 @@ class Three {
         //
         this.controls = new THREE.TrackballControls(this.camera, this.canvas);
 
-        // var group = new THREE.Object3D();
-        //
-				// for ( var i = 1; i < 25; i ++ ) {
-        //
-				// 	var geometry = new THREE.SphereBufferGeometry( i / 2, 48, 24 );
-        //
-				// 	var material = new THREE.MeshPhongMaterial( {
-        //
-				// 		color: new THREE.Color( Math.sin( i * 0.5 ) * 0.5 + 0.5, Math.cos( i * 1.5 ) * 0.5 + 0.5, Math.sin( i * 4.5 + 0 ) * 0.5 + 0.5 ),
-				// 		side: THREE.DoubleSide,
-				// 		clippingPlanes: this.clipPlanes,
-				// 		clipIntersection: this.clipParams.clipIntersection
-        //
-				// 	} );
-        //
-				// 	group.add( new THREE.Mesh( geometry, material ) );
-        //
-				// }
-        //
-				// this.scene.add( group );
-        // this.render();
 
     }
     /**
@@ -740,7 +720,7 @@ class Three {
                 x: newPos.x,
                 y: newPos.y,
                 z: newPos.z
-            }, 1000)
+            }, 500)
             /**
              * Circular 间接的动画
              * Elastic  弹性动画

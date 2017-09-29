@@ -94,8 +94,7 @@ export default {
                     }]
                 }],
                 wh:{width:1000,height:600},
-                loaddata: load,
-                loaddata2: load2,
+
                 defaultProps: {
                     children: 'children',
                     label: 'label'

@@ -24,6 +24,10 @@ module.exports = {
       src:'~/plugins/eleme-ui'
     },
     {
+      src:'~/plugins/axios-config',
+      ssr:false
+        },
+    {
       src:'~/plugins/JSZip',
       ssr:false
     },

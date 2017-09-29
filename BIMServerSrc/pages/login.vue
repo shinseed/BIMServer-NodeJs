@@ -2,7 +2,7 @@
 
 <template>
 
-<section class="container"  >
+<section class="container">
     <el-card class="box-card" style="width:400px;margin:0 auto">
         <div slot="header" class="clearfix">
             <span style="line-height: 36px;">登录</span>
@@ -31,6 +31,7 @@
 
 <script>
 
+import axios from '~/plugins/axios-config';
 export default {
     asyncData({
             req
@@ -38,8 +39,8 @@ export default {
             return {
                 name: req ? 'server' : 'client',
                 dynamicValidateForm: {
-                    value: '',
-                    email: ''
+                    value: '5112201',
+                    email: '307610991@qq.com'
                 }
             }
         },
@@ -63,6 +64,14 @@ export default {
             submitForm(formName) {
                     this.$refs[formName].validate((valid) => {
                         if (valid) {
+                            axios.get('/api/login', {
+                                params: {
+                                    email: this.dynamicValidateForm.email,
+                                    password:this.dynamicValidateForm.value
+                                }
+                            }).then((r) => {
+                                console.log(r);
+                            })
                             alert('submit!');
                         } else {
                             console.log('error submit!!');
@@ -71,7 +80,7 @@ export default {
                     });
                 },
                 resetForm(formName) {
-                    this.$refs[formName].resetFields();
+                    this.$router.push('sign-in')
                 }
         }
 }

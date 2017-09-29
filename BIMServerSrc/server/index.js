@@ -1,6 +1,9 @@
 import Koa from 'koa'
 import { Nuxt, Builder } from 'nuxt'
-
+const fs=require('fs');
+const bodyParser = require('koa-bodyparser');
+const controller = require('./controller-api');
+const controller_realm=require('./controller-realmDb')
 const app = new Koa()
 const host = process.env.HOST || '127.0.0.1'
 const port = process.env.PORT || 3000
@@ -21,6 +24,15 @@ if (config.dev) {
   })
 }
 
+
+
+//add bodyParser middleware
+app.use(bodyParser());
+// add router middleware:
+controller_realm()
+app.use(controller());
+
+
 app.use(ctx => {
   ctx.status = 200 // koa defaults to 404 when it sees that status is unset
 
@@ -33,6 +45,10 @@ app.use(ctx => {
     })
   })
 })
+
+
+
+
 
 app.listen(port, host)
 console.log('Server listening on ' + host + ':' + port) // eslint-disable-line no-console

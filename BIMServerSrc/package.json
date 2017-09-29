@@ -13,14 +13,19 @@
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore ."
   },
   "dependencies": {
+    "axios": "^0.16.2",
     "cross-env": "^5.0.1",
     "element-ui": "^1.4.4",
     "koa": "^2.3.0",
+    "koa-bodyparser": "^4.2.0",
+    "koa-router": "^7.2.1",
     "nuxt": "^1.0.0-rc11",
+    "realm": "^1.12.0",
     "source-map-support": "^0.4.15",
     "three": "^0.87.1",
     "transform-runtime": "^0.0.0",
-    "tween.js": "^16.6.0"
+    "tween.js": "^16.6.0",
+    "uuid": "^3.1.0"
   },
   "devDependencies": {
     "babel-eslint": "^7.1.1",
