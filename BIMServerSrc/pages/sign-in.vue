@@ -18,7 +18,7 @@
                 <el-input type="password" v-model="ruleFromSign.checkPass" auto-complete="off"></el-input>
             </el-form-item>
             <el-form-item>
-                <el-button @click="resetForm('dynamicValidateForm')">注册</el-button>
+                <el-button @click="submitForm('ruleFromSign')">注册</el-button>
             </el-form-item>
         </el-form>
     </el-card>
@@ -27,7 +27,7 @@
 </template>
 
 <script>
-
+import md5 from 'md5';
 import axios from '~/plugins/axios-config';
 export default {
     head() {
@@ -48,14 +48,14 @@ export default {
                 if (!RegEmail.test(value)) {
                     return callback(new Error('请输入正确的邮箱'));
                 }
-                axios.get('/api/isRepeatEmail', {
+                axios.get('/api/NotCheckToken/isRepeatEmail', {
                     params: {
                         email: value
                     }
                 }).then(({
                     data
                 }) => {
-                    if (data.results) {
+                    if (data.success) {
                         callback(new Error('已存在该邮箱'));
                     } else {
                         callback();
@@ -107,7 +107,15 @@ export default {
             submitForm(formName) {
                     this.$refs[formName].validate((valid) => {
                         if (valid) {
-                            alert('submit!');
+                            axios.post('/api/NotCheckToken/registerUser', {
+                                email: md5(this.ruleFromSign.email),
+                                password: md5(this.ruleFromSign.pass)
+                            }).then(({
+                                data
+                            }) => {
+                                localStorage.setItem('BIM',data.value.token);
+                                this.$router.push('/');
+                            })
                         } else {
                             console.log('error submit!!');
                             return false;

@@ -31,6 +31,7 @@
 
 <script>
 
+import md5 from 'md5';
 import axios from '~/plugins/axios-config';
 export default {
     asyncData({
@@ -39,8 +40,8 @@ export default {
             return {
                 name: req ? 'server' : 'client',
                 dynamicValidateForm: {
-                    value: '5112201',
-                    email: '307610991@qq.com'
+                    value: '',
+                    email: ''
                 }
             }
         },
@@ -64,15 +65,24 @@ export default {
             submitForm(formName) {
                     this.$refs[formName].validate((valid) => {
                         if (valid) {
-                            axios.get('/api/login', {
+                            axios.get('/api/NotCheckToken/login', {
                                 params: {
-                                    email: this.dynamicValidateForm.email,
-                                    password:this.dynamicValidateForm.value
+                                    email: md5(this.dynamicValidateForm.email),
+                                    password: md5(this.dynamicValidateForm.value)
                                 }
-                            }).then((r) => {
-                                console.log(r);
+                            }).then(({
+                                data
+                            }) => {
+                                if (data.success) {
+                                    localStorage.BIM = data.value.token;
+                                    this.$router.push('/');
+                                } else {
+                                    this.$notify.error({
+                                        title: 'error',
+                                        message: data.message
+                                    });
+                                }
                             })
-                            alert('submit!');
                         } else {
                             console.log('error submit!!');
                             return false;

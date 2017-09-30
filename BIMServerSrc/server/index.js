@@ -2,8 +2,8 @@ import Koa from 'koa'
 import { Nuxt, Builder } from 'nuxt'
 const fs=require('fs');
 const bodyParser = require('koa-bodyparser');
-const controller = require('./controller-api');
-const controller_realm=require('./controller-realmDb')
+const addControllers = require('./addControllers');
+const addModels=require('./addModels')
 const app = new Koa()
 const host = process.env.HOST || '127.0.0.1'
 const port = process.env.PORT || 3000
@@ -28,9 +28,12 @@ if (config.dev) {
 
 //add bodyParser middleware
 app.use(bodyParser());
+
 // add router middleware:
-controller_realm()
-app.use(controller());
+addModels()
+
+
+app.use(addControllers());
 
 
 app.use(ctx => {

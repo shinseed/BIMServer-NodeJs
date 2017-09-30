@@ -6,14 +6,14 @@ function addMapping( mapping) {
 }
 
 function addControllers() {
-    var files = fs.readdirSync(__dirname + '/realmDb');
+    var files = fs.readdirSync(__dirname + '/Models');
     var js_files = files.filter((f) => {
         return f.endsWith('.js');
     });
 
     for (var f of js_files) {
         console.log(`process realmDb: ${f}...`);
-        let mapping = require(__dirname + '/realmDb/' + f);
+        let mapping = require(__dirname + '/Models/' + f);
         addMapping(mapping);
     }
 }

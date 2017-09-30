@@ -18,7 +18,7 @@
 </template>
 
 <script>
-
+import axios from '~/plugins/axios-config'
 import util from '~/components/eleme-tree-grid/util';
 
 var trees = [{
@@ -173,7 +173,9 @@ export default {
   },
     methods: {
         handleClick() {
-                console.log(1);
+                axios.post('/project/xx',{aa:'11'}).then((response)=>{
+                  console.log(response);
+                })
             },
             remote(row, callback) {
                 setTimeout(function() {
