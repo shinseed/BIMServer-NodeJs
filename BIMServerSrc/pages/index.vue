@@ -173,8 +173,8 @@ export default {
   },
     methods: {
         handleClick() {
-                axios.post('/project/xx',{aa:'11'}).then((response)=>{
-                  console.log(response);
+                axios.post('/project/xx',{aa:'11'}).then((data)=>{
+                  console.log(data);
                 })
             },
             remote(row, callback) {

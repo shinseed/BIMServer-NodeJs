@@ -89,9 +89,9 @@ var _this = this;
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 /*
- * user login api 
- * Copyright(c) 2017-present shinseed, Inc. <307610991@qq.com>
- * Apache License 2.0
+ * user login api
+ * Copyright (c) 2017 shinseed <307610991@qq.com>
+ * MIT License
  */
 var fs = __webpack_require__(0);
 var UUID = __webpack_require__(20);
@@ -143,6 +143,7 @@ var isRepeatEmail = function () {
             email = ctx.query['email'];
             realm = new Realm();
             user = realm.objects('User').filtered('email="' + email + '"');
+
 
             if (user[0]) {
               ctx.response.body = { success: true };
@@ -357,8 +358,141 @@ module.exports = {
 };
 
 /***/ },
-/* 9 */,
-/* 10 */,
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(__dirname) {var fs = __webpack_require__(0);
+var middleware_check_token = __webpack_require__(14);
+
+/**
+ * addMapping - add controller mapping
+ *
+ * @param  {type} router
+ * @param  {type} mapping
+ * @return {type}          
+ */
+function addMapping(router, mapping) {
+    for (var url in mapping) {
+        if (url.startsWith('GET ')) {
+            var path = url.substring(4);
+            if (path.indexOf('NotCheckToken') != -1) {
+                router.get(path, mapping[url]);
+            } else {
+                router.get(path, middleware_check_token, mapping[url]);
+            }
+            console.log('register URL mapping: GET ' + path);
+        } else if (url.startsWith('POST ')) {
+            var path = url.substring(5);
+            if (path.indexOf('NotCheckToken') != -1) {
+                router.post(path, mapping[url]);
+            } else {
+                router.post(path, middleware_check_token, mapping[url]);
+            }
+            console.log('register URL mapping: POST ' + path);
+        } else {
+            console.log('invalid URL: ' + url);
+        }
+    }
+}
+
+/**
+ * addControllers
+ *
+ * @param  {type} router
+ * @return {type}
+ */
+function addControllers(router) {
+    var files = fs.readdirSync(__dirname + '/Controllers');
+    var js_files = files.filter(function (f) {
+        return f.endsWith('.js');
+    });
+
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = js_files[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var f = _step.value;
+
+            console.log('process controller: ' + f + '...');
+            var mapping = __webpack_require__(15)("./" + f);
+            addMapping(router, mapping);
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+}
+
+module.exports = function () {
+    var router = __webpack_require__(17)();
+    addControllers(router);
+    return router.routes();
+};
+/* WEBPACK VAR INJECTION */}.call(exports, "server"))
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(__dirname) {var fs = __webpack_require__(0);
+var Realm = __webpack_require__(7);
+
+function addMapping(mapping) {
+    var realm = new Realm({ schema: [mapping] });
+}
+
+function addControllers() {
+    var files = fs.readdirSync(__dirname + '/Models');
+    var js_files = files.filter(function (f) {
+        return f.endsWith('.js');
+    });
+
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = js_files[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var f = _step.value;
+
+            console.log('process realmDb: ' + f + '...');
+            var mapping = __webpack_require__(16)("./" + f);
+            addMapping(mapping);
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+}
+
+module.exports = function () {
+    addControllers();
+};
+/* WEBPACK VAR INJECTION */}.call(exports, "server"))
+
+/***/ },
 /* 11 */
 /***/ function(module, exports) {
 
@@ -382,8 +516,8 @@ module.exports = require("nuxt");
 
 /*
  * check token middleware
- * Copyright(c) 2017-present shinseed, Inc. <307610991@qq.com>
- * Apache License 2.0
+ * Copyright (c) 2017 shinseed <307610991@qq.com>
+ * MIT License
  */
 var jwt = __webpack_require__(6);
 var RESTfulOut = __webpack_require__(4);
@@ -497,8 +631,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 
 var fs = __webpack_require__(0);
 var bodyParser = __webpack_require__(12);
-var addControllers = __webpack_require__(22);
-var addModels = __webpack_require__(23);
+var addControllers = __webpack_require__(9);
+var addModels = __webpack_require__(10);
 var app = new __WEBPACK_IMPORTED_MODULE_0_koa___default.a();
 var host = process.env.HOST || '127.0.0.1';
 var port = process.env.PORT || 3000;
@@ -542,141 +676,6 @@ app.use(function (ctx) {
 
 app.listen(port, host);
 console.log('Server listening on ' + host + ':' + port); // eslint-disable-line no-console
-
-/***/ },
-/* 22 */
-/***/ function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(__dirname) {var fs = __webpack_require__(0);
-var middleware_check_token = __webpack_require__(14);
-
-/**
- * addMapping - add controller mapping
- *
- * @param  {type} router
- * @param  {type} mapping
- * @return {type}          
- */
-function addMapping(router, mapping) {
-    for (var url in mapping) {
-        if (url.startsWith('GET ')) {
-            var path = url.substring(4);
-            if (path.indexOf('NotCheckToken') != -1) {
-                router.get(path, mapping[url]);
-            } else {
-                router.get(path, middleware_check_token, mapping[url]);
-            }
-            console.log('register URL mapping: GET ' + path);
-        } else if (url.startsWith('POST ')) {
-            var path = url.substring(5);
-            if (path.indexOf('NotCheckToken') != -1) {
-                router.post(path, mapping[url]);
-            } else {
-                router.post(path, middleware_check_token, mapping[url]);
-            }
-            console.log('register URL mapping: POST ' + path);
-        } else {
-            console.log('invalid URL: ' + url);
-        }
-    }
-}
-
-/**
- * addControllers
- *
- * @param  {type} router
- * @return {type}
- */
-function addControllers(router) {
-    var files = fs.readdirSync(__dirname + '/Controllers');
-    var js_files = files.filter(function (f) {
-        return f.endsWith('.js');
-    });
-
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-        for (var _iterator = js_files[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var f = _step.value;
-
-            console.log('process controller: ' + f + '...');
-            var mapping = __webpack_require__(15)("./" + f);
-            addMapping(router, mapping);
-        }
-    } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-                _iterator.return();
-            }
-        } finally {
-            if (_didIteratorError) {
-                throw _iteratorError;
-            }
-        }
-    }
-}
-
-module.exports = function () {
-    var router = __webpack_require__(17)();
-    addControllers(router);
-    return router.routes();
-};
-/* WEBPACK VAR INJECTION */}.call(exports, "server"))
-
-/***/ },
-/* 23 */
-/***/ function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(__dirname) {var fs = __webpack_require__(0);
-var Realm = __webpack_require__(7);
-
-function addMapping(mapping) {
-    var realm = new Realm({ schema: [mapping] });
-}
-
-function addControllers() {
-    var files = fs.readdirSync(__dirname + '/Models');
-    var js_files = files.filter(function (f) {
-        return f.endsWith('.js');
-    });
-
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-        for (var _iterator = js_files[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var f = _step.value;
-
-            console.log('process realmDb: ' + f + '...');
-            var mapping = __webpack_require__(16)("./" + f);
-            addMapping(mapping);
-        }
-    } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-                _iterator.return();
-            }
-        } finally {
-            if (_didIteratorError) {
-                throw _iteratorError;
-            }
-        }
-    }
-}
-
-module.exports = function () {
-    addControllers();
-};
-/* WEBPACK VAR INJECTION */}.call(exports, "server"))
 
 /***/ }
 /******/ ]);

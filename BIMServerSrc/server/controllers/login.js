@@ -1,7 +1,7 @@
 /*
- * user login api 
- * Copyright(c) 2017-present shinseed, Inc. <307610991@qq.com>
- * Apache License 2.0
+ * user login api
+ * Copyright (c) 2017 shinseed <307610991@qq.com>
+ * MIT License
  */
 const fs=require('fs');
 const UUID=require('uuid');
@@ -30,6 +30,7 @@ let isRepeatEmail=async (ctx,next)=>{
   let email=ctx.query['email'];
   let realm=new Realm();
   let user=realm.objects('User').filtered(`email="${email}"`);
+
   if(user[0]){
     ctx.response.body={success:true};
   }

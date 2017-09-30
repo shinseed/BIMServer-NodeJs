@@ -19,7 +19,7 @@ api.interceptors.response.use((response)=>{
 },(error)=>{
   switch (error.response.status) {
     case 403:
-    $nuxt.$router.push('/login')
+    $nuxt.$router.push('/sign-in')
     $nuxt.$notify.error({
           title: `error status ${error.response.status}`,
           message: `${error.response.data.message}`

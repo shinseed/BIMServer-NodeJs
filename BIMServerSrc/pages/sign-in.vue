@@ -3,22 +3,25 @@
 <template>
 
 <section class="container">
-    <el-card class="box-card" style="width:400px;margin:0 auto">
+    <el-card class="box-card" style="width:600px;margin:0 auto">
         <div slot="header" class="clearfix">
-            <span style="line-height: 36px;">注册</span>
+            <span style="line-height: 36px;">Sign in</span>
         </div>
-        <el-form :model="ruleFromSign" :rules="rules2" ref="ruleFromSign" label-width="60px" class="demo-dynamic">
-            <el-form-item label="账号" prop="email">
-                <el-input v-model="ruleFromSign.email"></el-input>
+        <el-form :model="dynamicValidateForm" ref="dynamicValidateForm"  class="demo-dynamic">
+            <el-form-item prop="email" label="email" :rules="[
+          { required: true, message: 'Please enter the email', trigger: 'blur' },
+          { type: 'email', message: 'Email format error', trigger: 'blur,change' }
+        ]">
+                <el-input v-model="dynamicValidateForm.email"></el-input>
             </el-form-item>
-            <el-form-item label="密码" prop="pass">
-                <el-input type="password" v-model="ruleFromSign.pass" auto-complete="off"></el-input>
-            </el-form-item>
-            <el-form-item label="确认" prop="checkPass">
-                <el-input type="password" v-model="ruleFromSign.checkPass" auto-complete="off"></el-input>
+            <el-form-item label="password" prop="value" :rules="[
+          { required: true, message: 'Password cannot be empty', trigger: 'blur' }
+        ]">
+                <el-input type='password' v-model="dynamicValidateForm.value"></el-input>
             </el-form-item>
             <el-form-item>
-                <el-button @click="submitForm('ruleFromSign')">注册</el-button>
+                <el-button type="primary" @click="submitForm('dynamicValidateForm')">Submit</el-button>
+                <el-button @click="resetForm('dynamicValidateForm')">Sign up</el-button>
             </el-form-item>
         </el-form>
     </el-card>
@@ -27,94 +30,58 @@
 </template>
 
 <script>
+
 import md5 from 'md5';
 import axios from '~/plugins/axios-config';
 export default {
-    head() {
-            return {
-                title: `sign-in Page (${this.name}-side)`
-            }
-        },
-        asyncData({
+    asyncData({
             req
         }) {
             return {
                 name: req ? 'server' : 'client',
+                dynamicValidateForm: {
+                    value: '',
+                    email: ''
+                }
             }
         },
-        data() {
-            var checkEmail = (rule, value, callback) => {
-                let RegEmail = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
-                if (!RegEmail.test(value)) {
-                    return callback(new Error('请输入正确的邮箱'));
-                }
-                axios.get('/api/NotCheckToken/isRepeatEmail', {
-                    params: {
-                        email: value
-                    }
-                }).then(({
-                    data
-                }) => {
-                    if (data.success) {
-                        callback(new Error('已存在该邮箱'));
-                    } else {
-                        callback();
-                    }
-                })
-            };
-            var validatePass = (rule, value, callback) => {
-                if (value === '') {
-                    callback(new Error('请输入密码'));
-                } else {
-                    if (this.ruleFromSign.checkPass !== '') {
-                        this.$refs.ruleFromSign.validateField('checkPass');
-                    }
-                    callback();
-                }
-            };
-            var validatePass2 = (rule, value, callback) => {
-                if (value === '') {
-                    callback(new Error('请再次输入密码'));
-                } else if (value !== this.ruleFromSign.pass) {
-                    callback(new Error('两次输入密码不一致!'));
-                } else {
-                    callback();
-                }
-            };
+        head() {
             return {
-                ruleFromSign: {
-                    pass: '',
-                    checkPass: '',
-                    email: ''
-                },
-                rules2: {
-                    pass: [{
-                        validator: validatePass,
-                        trigger: 'blur'
-                    }],
-                    checkPass: [{
-                        validator: validatePass2,
-                        trigger: 'blur'
-                    }],
-                    email: [{
-                        trigger: 'blur',
-                        validator: checkEmail
-                    }]
+                title: `Login Page (${this.name}-side)`
+            }
+        },
+        mounted() {
+            document.onkeydown = (event) => {
+                var e = event || window.event || arguments.callee.caller.arguments[0];
+                if (e && e.keyCode == 13) { // enter 键
+                    // if (this.$route.path == '/login') {
+                    this.submitForm('dynamicValidateForm')
+                        // }
+
                 }
-            };
+            }
         },
         methods: {
             submitForm(formName) {
                     this.$refs[formName].validate((valid) => {
                         if (valid) {
-                            axios.post('/api/NotCheckToken/registerUser', {
-                                email: md5(this.ruleFromSign.email),
-                                password: md5(this.ruleFromSign.pass)
+                            axios.get('/api/NotCheckToken/login', {
+                                params: {
+                                    email: md5(this.dynamicValidateForm.email),
+                                    password: md5(this.dynamicValidateForm.value)
+                                }
                             }).then(({
                                 data
                             }) => {
-                                localStorage.setItem('BIM',data.value.token);
-                                this.$router.push('/');
+                                if (data.success) {
+                                    localStorage.BIM = data.value.token;
+                                    this.$router.push('/');
+                                } else {
+                                    this.$notify.error({
+                                        title: 'error',
+                                        message: data.message
+                                    });
+                                }
                             })
                         } else {
                             console.log('error submit!!');
@@ -123,7 +90,7 @@ export default {
                     });
                 },
                 resetForm(formName) {
-                    this.$refs[formName].resetFields();
+                    this.$router.push('sign-up')
                 }
         }
 }

@@ -1,7 +1,7 @@
 /*
  * check token middleware
- * Copyright(c) 2017-present shinseed, Inc. <307610991@qq.com>
- * Apache License 2.0
+ * Copyright (c) 2017 shinseed <307610991@qq.com>
+ * MIT License
  */
 const jwt = require('jsonwebtoken');
 const RESTfulOut=require('../utils/RESTfulOut');
