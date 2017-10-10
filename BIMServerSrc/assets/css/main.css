@@ -7,29 +7,16 @@ html, body
   height: 100vh;
   margin: 0;
 }
-
+.container{
+  position: relative;
+  height: 100vh;
+}
 footer
 {
   padding: 20px;
   text-align: center;
   border-top: 1px solid #ddd;
-}
-
-a, a:hover, a:focus, a:visited
-{
-  color: #41B883;
-}
-
-.logo {
-  width: 243px;
-  height: 218px;
-}
-
-.page-enter-active, .page-leave-active
-{
-  transition: opacity .5s
-}
-.page-enter, .page-leave-active
-{
-  opacity: 0
+  position: absolute;
+  width: 100%;
+  bottom: 0px;
 }

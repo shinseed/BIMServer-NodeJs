@@ -170,7 +170,7 @@ class Three {
         this.init();
 
         //事件监听
-        // window.addEventListener('resize',this.resizeDisplayGL.bind(this),false)
+        window.addEventListener('resize',this.resizeDisplayGL.bind(this),false)
         // this.animate();
     }
     init() {
@@ -182,7 +182,7 @@ class Three {
         // this.scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
 
         //坐标轴辅助
-        var helper = new THREE.GridHelper(1200, 60, 0xFF4444, 0x404040);
+        var helper = new THREE.GridHelper(1200, 10, 0xFF4444, 0x404040);
         this.scene.add(helper);
 
 
@@ -429,13 +429,22 @@ class Three {
         return true;
     }
     recalcAspectRatio() {
-        this.aspectRatio = (this.canvas.offsetHeight === 0) ? 1 : this.canvas.offsetWidth / this.canvas.offsetHeight;
+        this.aspectRatio = (this.width === 0) ? 1 : this.width / this.height;
     }
+    /**
+     * resize canvas
+     */
     resizeDisplayGL() {
+
+        this.width=this.canvas.parentElement.offsetWidth;
+        this.height=this.canvas.parentElement.offsetHeight;
+        this.canvas.style.width=this.width+'px';
+        this.canvas.style.height=this.height+'px';
         this.controls.handleResize();
 
+
         this.recalcAspectRatio();
-        this.renderer.setSize(this.canvas.offsetWidth, this.canvas.offsetHeight, false);
+        this.renderer.setSize(this.width, this.height, false);
 
         this.updateCamera();
     }
